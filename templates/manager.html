@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Менеджеру</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .content {
+            margin-left: 200px; /* Ширина бокового меню */
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Меню</h2>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/manager">Менеджеру</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/printer">Печатнику</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/results">Результаты</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin">Панель администратора</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h1>Таблица заказов</h1>
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>№ п/п</th>
+                    <th>№ задачи</th>
+                    <th>Дата</th>
+                    <th>Сюжет</th>
+                    <th>Материал</th>
+                    <th>Ширина</th>
+                    <th>Высота</th>
+                    <th>Люверсы</th>
+                    <th>Спайка</th>
+                    <th>Усиление</th>
+                    <th>Кол-во</th>
+                    <th>Заказчик</th>
+                    <th>Цена за ед</th>
+                    <th>Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td></td>
+                    <td>01.09.2024</td>
+                    <td>Тринити</td>
+                    <td>Баннер литой 450гм</td>
+                    <td>6</td>
+                    <td>3</td>
+                    <td>да</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>12</td>
+                    <td>VM</td>
+                    <td>5 200,00 ₽</td>
+                    <td>62 400,00 ₽</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td></td>
+                    <td>01.09.2024</td>
+                    <td>Галактика</td>
+                    <td>Блюбек</td>
+                    <td>6</td>
+                    <td>3</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>15</td>
+                    <td>VM</td>
+                    <td>2 500,00 ₽</td>
+                    <td>37 500,00 ₽</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td></td>
+                    <td>01.09.2024</td>
+                    <td>Кассовые аппараты</td>
+                    <td>Баннер литой 450гм</td>
+                    <td>6</td>
+                    <td>3</td>
+                    <td>да</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>1</td>
+                    <td>VM</td>
+                    <td>5 200,00 ₽</td>
+                    <td>5 200,00 ₽</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td></td>
+                    <td>01.09.2024</td>
+                    <td>Аренда квартир</td>
+                    <td>Баннер литой 450гм</td>
+                    <td>6</td>
+                    <td>3</td>
+                    <td>да</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>5</td>
+                    <td>VM</td>
+                    <td>5 200,00 ₽</td>
+                    <td>26 000,00 ₽</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td></td>
+                    <td>01.09.2024</td>
+                    <td>Такси</td>
+                    <td>Баннер литой 450гм</td>
+                    <td>6</td>
+                    <td>3</td>
+                    <td>да</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>3</td>
+                    <td>VM</td>
+                    <td>5 200,00 ₽</td>
+                    <td>15 600,00 ₽</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td></td>
+                    <td>01.09.2024</td>
+                    <td>Горняк Геркулес</td>
+                    <td>Блюбек</td>
+                    <td>6</td>
+                    <td>3</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>18</td>
+                    <td>VM</td>
+                    <td>2 500,00 ₽</td>
+                    <td>45 000,00 ₽</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>84</td>
+                    <td>05.09.2024</td>
+                    <td>Планета учёта</td>
+                    <td>Баннер литой 450гм</td>
+                    <td>6</td>
+                    <td>3</td>
+                    <td>да</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>2</td>
+                    <td>VM</td>
+                    <td>5 200,00 ₽</td>
+                    <td>10 400,00 ₽</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>88</td>
+                    <td>05.09.2024</td>
+                    <td>ЦП Славолия</td>
+                    <td>Блюбек</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>1</td>
+                    <td>VM</td>
+                    <td>350,00 ₽</td>
+                    <td>350,00 ₽</td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>90</td>
+                    <td>06.09.2024</td>
+                    <td>Автосервис, шиномонтаж</td>
+                    <td>Баннер литой 450гм</td>
+                    <td>6</td>
+                    <td>3</td>
+                    <td>да</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>1</td>
+                    <td>VM</td>
+                    <td>5 200,00 ₽</td>
+                    <td>5 200,00 ₽</td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>92</td>
+                    <td>06.09.2024</td>
+                    <td>Гильдия Групп</td>
+                    <td>Баннер литой 450гм</td>
+                    <td>6</td>
+                    <td>3</td>
+                    <td>да</td>
+                    <td>нет</td>
+                    <td>нет</td>
+                    <td>1</td>
+                    <td>VM</td>
+                    <td>5 200,00 ₽</td>
+                    <td>5 200,00 ₽</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
