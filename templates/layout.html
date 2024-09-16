@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Главная страница{% endblock %}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .sidebar {
+            background-color: #000; /* Черный цвет для меню */
+            color: white;
+            height: 100vh;
+            padding: 20px;
+        }
+        .nav-link {
+            color: white;
+        }
+        .nav-link:hover {
+            background-color: #495057; /* Цвет фона при наведении */
+        }
+        .nav-link i {
+            margin-right: 10px; /* Отступ между иконкой и текстом */
+        }
+    </style>
+</head>
+<body>
+    {% include 'sidebar.html' %}
+
+
+            {% block content %}
+            {% endblock %}
+
+
+    {% block printer %}
+            {% endblock %}
+
+    {% block manager %}
+            {% endblock %}
+
+    {% block admin %}
+            {% endblock %}
+
+        {% block result %}
+            {% endblock %}
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
