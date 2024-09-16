@@ -4,8 +4,9 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from models import SessionLocal, create_superuser, User
 from admin import router as admin_router
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+
 templates = Jinja2Templates(directory="templates")
 
 # Зависимость для получения сессии базы данных
@@ -17,11 +18,20 @@ def get_db():
         db.close()
 
 # Проверка и создание суперпользователя при старте приложения
-@app.on_event("startup")
-def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Создание подключения к базе данных перед запуском
     db = SessionLocal()
-    create_superuser(db)
-    db.close()
+    try:
+        # Создание суперпользователя
+        create_superuser(db)
+        yield
+    finally:
+        # Закрытие подключения к базе данных при завершении
+        db.close()
+
+app = FastAPI(lifespan=lifespan)
+
 
 # Проверка сессии пользователя
 def get_current_user(request: Request, db: Session = Depends(get_db)):
