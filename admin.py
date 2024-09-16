@@ -15,8 +15,24 @@ def get_db():
     finally:
         db.close()
 
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    user = db.query(User).filter(User.id == int(session_id)).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    return user
+
+def check_admin_access(user: User):
+    if user.role not in (Role.superuser, Role.admin):
+        raise HTTPException(status_code=403, detail="Доступ запрещен")
+
 @router.get("/", response_class=HTMLResponse)
-async def admin_page(request: Request, db: Session = Depends(get_db)):
+async def admin_page(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    check_admin_access(current_user)  # Проверяем доступ
     users = db.query(User).all()
     return templates.TemplateResponse("admin.html", {"request": request, "users": users})
 
@@ -28,9 +44,11 @@ async def create_user(
     email: str = Form(...),
     password: str = Form(...),
     login: str = Form(...),
-    role: Role = Form(...),  # Добавлено поле для роли
-    db: Session = Depends(get_db)
+    role: Role = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    check_admin_access(current_user)  # Проверяем доступ
     user = User(name=name, surname=surname, email=email, password=password, login=login, role=role)
     try:
         db.add(user)
@@ -42,7 +60,8 @@ async def create_user(
     return RedirectResponse(url="/admin/", status_code=303)
 
 @router.post("/delete/{user_id}")
-async def delete_user(user_id: int, db: Session = Depends(get_db)):
+async def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    check_admin_access(current_user)  # Проверяем доступ
     user = db.query(User).filter(User.id == user_id).first()
     if user:
         db.delete(user)
@@ -58,9 +77,11 @@ async def edit_user(
     email: str = Form(...),
     password: str = Form(...),
     login: str = Form(...),
-    role: Role = Form(...),  # Добавлено поле для роли
-    db: Session = Depends(get_db)
+    role: Role = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    check_admin_access(current_user)  # Проверяем доступ
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -70,6 +91,6 @@ async def edit_user(
     user.email = email
     user.password = password
     user.login = login
-    user.role = role  # Обновляем роль
+    user.role = role
     db.commit()
     return RedirectResponse(url="/admin/", status_code=303)

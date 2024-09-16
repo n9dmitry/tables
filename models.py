@@ -32,24 +32,6 @@ class User(Base):
     login = Column(String, unique=True, index=True)  # Логин
     role = Column(Enum(Role), index=True)      # Роль пользователя
 
-# Описание модели заказа
-class Order(Base):
-    __tablename__ = "orders"
-
-    id = Column(Integer, primary_key=True, index=True)
-    task_number = Column(String, index=True)
-    date = Column(String)
-    plot = Column(String)
-    material = Column(String)
-    width = Column(Float)
-    height = Column(Float)
-    eyelets = Column(String)
-    spike = Column(String)
-    reinforcement = Column(String)
-    quantity = Column(Integer)
-    customer = Column(String)
-    price_per_unit = Column(Float)
-    total_amount = Column(Float)
 
 # Создание таблиц
 Base.metadata.create_all(bind=engine)
