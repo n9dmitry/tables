@@ -1,8 +1,9 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, Enum, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Enum, JSON
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session, relationship  # Добавьте sessionmaker здесь
+from sqlalchemy.orm import sessionmaker, Session
 import enum
 from sqlalchemy.exc import IntegrityError
+
 
 # Создаем базу данных
 DATABASE_URL = "sqlite:///./example.db"
@@ -30,8 +31,8 @@ class User(Base):
     email = Column(String, unique=True, index=True)  # Email
     password = Column(String)                  # Пароль (обычный текст)
     login = Column(String, unique=True, index=True)  # Логин
-    role = Column(Enum(Role), index=True)      # Роль пользователя
-
+    role = Column(Enum(Role), index=True)     # Роль пользователя
+    # access_rights = Column(JSON, default={})
 
 # Создание таблиц
 Base.metadata.create_all(bind=engine)

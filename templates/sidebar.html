@@ -1,28 +1,41 @@
-
-
-
 <div class="sidebar">
     <h2>Меню</h2>
     <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="/printer">
-                <i class="fas fa-print"></i> Печатнику
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/manager">
-                <i class="fas fa-user-tie"></i> Менеджеру
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/results">
-                <i class="fas fa-chart-line"></i> Результаты
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/admin">
-                <i class="fas fa-tools"></i> Панель администратора
-            </a>
-        </li>
+
+        {% if role == 'Печатник' %}
+            <li class="nav-item">
+                <a class="nav-link" href="/printer">
+                    <i class="fas fa-print"></i> Печатнику
+                </a>
+            </li>
+        {% elif role == 'Менеджер' %}
+            <li class="nav-item">
+                <a class="nav-link" href="/manager">
+                    <i class="fas fa-user-tie"></i> Менеджеру
+                </a>
+            </li>
+        {% elif role == 'Администратор' or role == 'Суперпользователь' %}
+            <li class="nav-item">
+                <a class="nav-link" href="/printer">
+                    <i class="fas fa-print"></i> Печатнику
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/manager">
+                    <i class="fas fa-user-tie"></i> Менеджеру
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/results">
+                    <i class="fas fa-chart-line"></i> Результаты
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin">
+                    <i class="fas fa-tools"></i> Панель администратора
+                </a>
+            </li>
+        {% endif %}
+        
     </ul>
 </div>
