@@ -49,7 +49,12 @@ def read_login(request: Request):
 
 # Авторизация пользователя
 @app.post("/login/")
-def login(request: Request, login: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+def login(
+    request: Request,
+    login: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
     user = db.query(User).filter(User.login == login).first()
     if user is None or user.password != password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -58,6 +63,7 @@ def login(request: Request, login: str = Form(...), password: str = Form(...), d
         "request": request,
         "user": user,
         "role": user.role.value,
+        "name": user.name.value,
     })
     response.set_cookie(key="session_id", value=user.id)
     return response
@@ -65,6 +71,13 @@ def login(request: Request, login: str = Form(...), password: str = Form(...), d
 @app.get("/", response_class=RedirectResponse)
 def redirect_to_login():
     return RedirectResponse(url="/login")
+
+# Функция для выхода из системы
+@app.post("/logout")
+def logout(response: RedirectResponse):
+    response = RedirectResponse(url="/login")
+    response.delete_cookie("session_id")  # Удаление куки
+    return response
 
 # Разные страницы для каждого пункта меню
 def check_role_access(user: User, allowed_roles: set):
@@ -76,8 +89,8 @@ def manager_page(request: Request, current_user: User = Depends(get_current_user
     check_role_access(current_user, {Role.manager, Role.superuser, Role.admin})
     return templates.TemplateResponse("manager.html", {
         "request": request,
-        "user": current_user,  # Передаем объект пользователя
-        "role": current_user.role.value,  # Передаем роль
+        "user": current_user,
+        "role": current_user.role.value,
     })
 
 @app.get("/printer", response_class=HTMLResponse)
