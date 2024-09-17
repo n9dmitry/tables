@@ -17,17 +17,13 @@ def get_db():
     finally:
         db.close()
 
-# Проверка и создание суперпользователя при старте приложения
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Создание подключения к базе данных перед запуском
     db = SessionLocal()
     try:
-        # Создание суперпользователя
         create_superuser(db)
         yield
     finally:
-        # Закрытие подключения к базе данных при завершении
         db.close()
 
 app = FastAPI(lifespan=lifespan)

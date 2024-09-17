@@ -5,7 +5,7 @@ import enum
 from sqlalchemy.exc import IntegrityError
 
 # Создаем базу данных
-DATABASE_URL = "sqlite:///./example.db"
+DATABASE_URL = "sqlite:///./database.db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
