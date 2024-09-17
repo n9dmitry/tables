@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from models import SessionLocal, create_superuser, User
+from models import SessionLocal, create_superuser, User, Order
 from admin import router as admin_router
 from contextlib import asynccontextmanager
 
@@ -74,6 +74,43 @@ def printer_page(request: Request, current_user: User = Depends(get_current_user
 @app.get("/results", response_class=HTMLResponse)
 def results_page(request: Request, current_user: User = Depends(get_current_user)):
     return templates.TemplateResponse("results.html", {"request": request})
+
+@app.post("/orders")
+async def create_order(
+    task_number: int = Form(...),
+    date: str = Form(...),
+    subject: str = Form(...),
+    material: str = Form(...),
+    quantity: int = Form(...),
+    performer: str = Form(...),
+    print_width: float = Form(...),
+    print_height: float = Form(...),
+    canvas_width: float = Form(...),
+    canvas_length: float = Form(...),
+    eyelets: str = Form(...),
+    spike: str = Form(...),
+    reinforcement: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    new_order = Order(
+        task_number=task_number,
+        date=date,
+        subject=subject,
+        material=material,
+        quantity=quantity,
+        performer=performer,
+        print_width=print_width,
+        print_height=print_height,
+        canvas_width=canvas_width,
+        canvas_length=canvas_length,
+        eyelets=eyelets,
+        spike=spike,
+        reinforcement=reinforcement,
+    )
+    db.add(new_order)
+    db.commit()
+    return RedirectResponse(url="/", status_code=303)  # Перенаправление на главную страницу
+
 
 app.include_router(admin_router, prefix="/admin", dependencies=[Depends(get_current_user)])
 

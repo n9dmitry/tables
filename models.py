@@ -4,15 +4,12 @@ from sqlalchemy.orm import sessionmaker, Session, relationship  # Добавьт
 import enum
 from sqlalchemy.exc import IntegrityError
 
-# Создаем базу данных
 DATABASE_URL = "sqlite:///./database.db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Определяем базу данных
 Base = declarative_base()
 
-# Перечисление ролей пользователя
 class Role(str, enum.Enum):
     superuser = "Суперпользователь"
     admin = "Администратор"
@@ -20,23 +17,20 @@ class Role(str, enum.Enum):
     printer = "Печатник"
     guest = "Гость"
 
-# Описание модели пользователя
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)          # Имя
-    surname = Column(String, index=True)       # Фамилия
-    email = Column(String, unique=True, index=True)  # Email
-    password = Column(String)                  # Пароль (обычный текст)
-    login = Column(String, unique=True, index=True)  # Логин
-    role = Column(Enum(Role), index=True)      # Роль пользователя
+    name = Column(String, index=True)
+    surname = Column(String, index=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String)
+    login = Column(String, unique=True, index=True)
+    role = Column(Enum(Role), index=True)
 
 
-# Создание таблиц
 Base.metadata.create_all(bind=engine)
 
-# Функция для создания суперпользователя
 def create_superuser(db: Session):
     superuser = User(
         name="admin",
@@ -44,11 +38,32 @@ def create_superuser(db: Session):
         email="admin@example.com",
         password="admin",
         login="admin",
-        role=Role.superuser  # Задаем роль суперпользователя
+        role=Role.superuser
     )
     try:
         db.add(superuser)
         db.commit()
         db.refresh(superuser)
     except IntegrityError:
-        db.rollback()  # В случае ошибки, откатим изменения
+        db.rollback()
+
+class Order(Base):
+    __tablename__ = 'orders'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    task_number = Column(Integer, nullable=True)
+    date = Column(String, nullable=True)  # Дата
+    subject = Column(String, nullable=True)  # Сюжет
+    material = Column(String, nullable=True)  # Материал
+    quantity = Column(Integer, nullable=True)  # Кол-во
+    performer = Column(String, nullable=True)  # Исполнитель
+    print_width = Column(Float, nullable=True)  # Ширина (печати)
+    print_height = Column(Float, nullable=True)  # Высота (печати)
+    canvas_width = Column(Float, nullable=True)  # Ширина (канвас)
+    canvas_length = Column(Float, nullable=True)  # Длина (канвас)
+    eyelets = Column(String, nullable=True)  # Люверсы
+    spike = Column(String, nullable=True)  # Спайка
+    reinforcement = Column(String, nullable=True)  # Усиление
+    customer = Column(String, nullable=False)  # Заказчик
+    price_per_unit = Column(Float, nullable=False)  # Цена за ед
+    total_amount = Column(Float, nullable=False)  # Сумма
