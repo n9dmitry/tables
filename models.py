@@ -67,3 +67,7 @@ class Order(Base):
     customer = Column(String, nullable=False)  # Заказчик
     price_per_unit = Column(Float, nullable=False)  # Цена за ед
     total_amount = Column(Float, nullable=False)  # Сумма
+
+if __name__ == "__main__":
+    Base.metadata.create_all(bind=engine)
+    print("Таблица orders создана.")

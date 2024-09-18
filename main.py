@@ -75,23 +75,25 @@ def printer_page(request: Request, current_user: User = Depends(get_current_user
 def results_page(request: Request, current_user: User = Depends(get_current_user)):
     return templates.TemplateResponse("results.html", {"request": request})
 
+
 @app.post("/orders")
 async def create_order(
-    task_number: int = Form(...),
-    date: str = Form(...),
-    subject: str = Form(...),
-    material: str = Form(...),
-    quantity: int = Form(...),
-    performer: str = Form(...),
-    print_width: float = Form(...),
-    print_height: float = Form(...),
-    canvas_width: float = Form(...),
-    canvas_length: float = Form(...),
-    eyelets: str = Form(...),
-    spike: str = Form(...),
-    reinforcement: str = Form(...),
-    db: Session = Depends(get_db)
+        task_number: int = Form(...),
+        date: str = Form(...),
+        subject: str = Form(...),
+        material: str = Form(...),
+        quantity: int = Form(...),
+        performer: str = Form(...),
+        print_width: float = Form(...),
+        print_height: float = Form(...),
+        canvas_width: float = Form(...),
+        canvas_length: float = Form(...),
+        eyelets: str = Form(...),
+        spike: str = Form(...),
+        reinforcement: str = Form(...),
+        db: Session = Depends(get_db)  # Предполагается, что get_db определен
 ):
+    # Создаем новый заказ
     new_order = Order(
         task_number=task_number,
         date=date,
@@ -107,9 +109,12 @@ async def create_order(
         spike=spike,
         reinforcement=reinforcement,
     )
+
+    # Добавляем и коммитим заказ в БД
     db.add(new_order)
     db.commit()
-    return RedirectResponse(url="/", status_code=303)  # Перенаправление на главную страницу
+
+    return {"message": "Order created successfully", "order_id": new_order.id}
 
 
 app.include_router(admin_router, prefix="/admin", dependencies=[Depends(get_current_user)])
