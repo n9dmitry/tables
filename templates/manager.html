@@ -5,7 +5,7 @@
 {% block manager %}
 <div class="content">
     <h1>Менеджер - Заказы</h1>
-    <button class="btn btn-warning mt-3">Добавить</button>
+    <!--    <button class="btn btn-warning mt-3">Редактировать</button>-->
     <table class="table table-bordered mt-4">
         <thead class="thead-light">
         <tr>
@@ -20,6 +20,7 @@
             <th rowspan="2">Заказчик</th>
             <th rowspan="2">Цена за ед</th>
             <th rowspan="2">Сумма</th>
+            <th rowspan="2">Редактировать</th>
         </tr>
         <tr>
             <th>Ширина</th>
@@ -30,24 +31,87 @@
         </tr>
         </thead>
         <tbody>
+        {% for order in orders %}
         <tr>
-            <td>1</td>
-            <td></td>
-            <td>01.09.2024</td>
-            <td>Тринити</td>
-            <td>Баннер литой 450гм</td>
-            <td>6</td>
-            <td>3</td>
-            <td>да</td>
-            <td>нет</td>
-            <td>нет</td>
-            <td>12</td>
-            <td>VM</td>
-            <td>5 200,00 ₽</td>
-            <td>62 400,00 ₽</td>
+            <td>{{ order.id }}</td>
+            <td>{{ order.task_number }}</td>
+            <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
+            <td>{{ order.subject }}</td>
+            <td>{{ order.material }}</td>
+            <td>{{ order.print_width }}</td>
+            <td>{{ order.print_height }}</td>
+            <td>{{ order.eyelets }}</td>
+            <td>{{ order.spike }}</td>
+            <td>{{ order.reinforcement }}</td>
+            <td>{{ order.quantity }}</td>
+            <td>{{ order.customer }}</td>
+            <td>{{ order.price_per_unit }}</td>
+            <td>{{ order.total_amount }}</td>
+            <td>
+                <button class="btn btn-warning mt-3 edit-btn" data-id="{{ order.id }}"
+                        data-toggle="modal" data-target="#orderModal">Редактировать
+                </button>
+            </td>
         </tr>
+        {% endfor %}
         </tbody>
     </table>
 
 </div>
+<!-- Модальное окно -->
+<div class="modal" id="orderModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="border: 2px solid #007bff; border-radius: 15px; padding: 20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">Изменить заказ</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="orderForm" action="/orders/update" method="POST" style="display: flex; flex-wrap: wrap;">
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            Текущий ID заказа: <span id="current-order-id"></span>
+                        </div>
+                        <input type="hidden" name="order_id" id="order_id" />
+
+
+                        <div class="col-md-12 form-group">
+                            <label for="customer">Заказчик</label>
+                            <input type="text" class="form-control" id="customer" name="customer" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="price_per_unit">Цена за ед.</label>
+                            <input type="number" class="form-control" id="price_per_unit" name="price_per_unit" step="1"
+                                   required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="total_amount">Сумма</label>
+                            <input type="number" class="form-control" id="total_amount" name="total_amount" step="1"
+                                   required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="submit" class="btn btn-primary" form="orderForm">Ок</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function() {
+        $(document).on('click', '.edit-btn', function() {
+            var orderId = $(this).data('id');
+            $('#current-order-id').text(orderId);  // Устанавливаем текст в span
+            $('#order_id').val(orderId);  // Устанавливаем значение в скрытое поле формы
+        });
+    });
+</script>
+
+
 {% endblock %}

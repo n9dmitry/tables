@@ -47,8 +47,8 @@ class Order(Base):
     spike = Column(String, nullable=False)  # Спайка
     reinforcement = Column(String, nullable=False)  # Усиление
     customer = Column(String, nullable=True)  # Заказчик
-    price_per_unit = Column(Float, nullable=True)  # Цена за ед
-    total_amount = Column(Float, nullable=True)  # Сумма
+    price_per_unit = Column(Integer, nullable=True)  # Цена за ед
+    total_amount = Column(Integer, nullable=True)  # Сумма
 
 Base.metadata.create_all(bind=engine)
 

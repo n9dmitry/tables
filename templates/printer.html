@@ -31,28 +31,27 @@
         </tr>
         </thead>
         <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ order.task_number }}</td>
-                <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
-                <td>{{ order.subject }}</td>
-                <td>{{ order.material }}</td>
-                <td>{{ order.print_width }}</td>
-                <td>{{ order.print_height }}</td>
-                <td>{{ order.canvas_width }}</td>
-                <td>{{ order.canvas_length }}</td>
-                <td>{{ order.eyelets }}</td>
-                <td>{{ order.spike }}</td>
-                <td>{{ order.reinforcement }}</td>
-                <td>{{ order.quantity }}</td>
-                <td>{{ order.performer }}</td>
-            </tr>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.task_number }}</td>
+            <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
+            <td>{{ order.subject }}</td>
+            <td>{{ order.material }}</td>
+            <td>{{ order.print_width }}</td>
+            <td>{{ order.print_height }}</td>
+            <td>{{ order.canvas_width }}</td>
+            <td>{{ order.canvas_length }}</td>
+            <td>{{ order.eyelets }}</td>
+            <td>{{ order.spike }}</td>
+            <td>{{ order.reinforcement }}</td>
+            <td>{{ order.quantity }}</td>
+            <td>{{ order.performer }}</td>
+        </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
-<!-- Модальное окно -->
 <!-- Модальное окно -->
 <div class="modal" id="orderModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -92,11 +91,13 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="canvas_width">Ширина (канвас)</label>
-                            <input type="number" class="form-control" id="canvas_width" name="canvas_width" required>
+                            <input type="number" class="form-control" id="canvas_width" name="canvas_width" step="0.01"
+                                   required>
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="canvas_length">Длина (канвас)</label>
-                            <input type="number" class="form-control" id="canvas_length" name="canvas_length" required>
+                            <input type="number" class="form-control" id="canvas_length" name="canvas_length"
+                                   step="0.01" required>
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="eyelets">Люверсы</label>
@@ -135,34 +136,6 @@
     document.querySelector('.btn-warning').addEventListener('click', function() {
       $('#orderModal').modal('show');
     });
-
-    // Сохраняем заказ и закрываем модальное окно
-    document.getElementById('saveOrder').addEventListener('click', function() {
-      const formData = new FormData(document.getElementById('orderForm'));
-      const orderData = {};
-      formData.forEach((value, key) => {
-        orderData[key] = value;
-      });
-
-      // Отправляем данные на сервер
-      fetch('/orders', {  // Замените на ваш путь
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Успешное создание заказа
-        alert('Заказ создан успешно!');
-        $('#orderModal').modal('hide');  // Закрываем модальное окно
-        // Здесь можно добавить код для обновления таблицы заказов
-      })
-      .catch((error) => {
-        console.error('Ошибка:', error);
-        alert('Ошибка при создании заказа.');
-      });
-    });
 </script>
+
 {% endblock %}

@@ -63,10 +63,7 @@ def login(request: Request, login: str = Form(...), password: str = Form(...), d
 def redirect_to_login():
     return RedirectResponse(url="/login")
 
-# Разные страницы для каждого пункта меню
-@app.get("/manager", response_class=HTMLResponse)
-def manager_page(request: Request, current_user: User = Depends(get_current_user)):
-    return templates.TemplateResponse("manager.html", {"request": request})
+
 
 
 @app.get("/printer", response_class=HTMLResponse)
@@ -75,10 +72,21 @@ async def printer_page(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
-    orders = db.query(Order).all()
+    orders = db.query(Order).order_by(Order.id.desc()).all()
 
     return templates.TemplateResponse("printer.html",
                                       {"request": request, "orders": orders, "current_user": current_user})
+
+# Разные страницы для каждого пункта меню
+@app.get("/manager", response_class=HTMLResponse)
+def manager_page(request: Request,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+                 ):
+    orders = db.query(Order).order_by(Order.id.desc()).all()
+
+    return templates.TemplateResponse("manager.html",
+                                      {"request": request, "orders": orders, })
 
 
 @app.get("/results", response_class=HTMLResponse)
@@ -128,6 +136,35 @@ async def create_order(
     db.commit()
 
     return {"message": "Order created successfully", "order_id": new_order.id}
+
+@app.post("/orders/{{ order_id }}")
+async def update_order(
+    order_id: int = Form(...),
+    customer: str = Form(...),
+    price_per_unit: int = Form(...),
+    total_amount: int = Form(...)
+):
+    db = SessionLocal()
+    try:
+        # Найти заказ по ID
+        order = db.query(Order).filter(Order.id == order_id).first()
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+
+        # Обновить поля заказа
+        order.customer = customer
+        order.price_per_unit = price_per_unit
+        order.total_amount = total_amount
+
+        db.commit()
+        db.refresh(order)
+
+        return {"message": "Order updated successfully", "order": order}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 
 app.include_router(admin_router, prefix="/admin", dependencies=[Depends(get_current_user)])
