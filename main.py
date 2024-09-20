@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from models import SessionLocal, create_superuser, User, Order
 from admin import router as admin_router
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 
 templates = Jinja2Templates(directory="templates")
@@ -67,9 +68,18 @@ def redirect_to_login():
 def manager_page(request: Request, current_user: User = Depends(get_current_user)):
     return templates.TemplateResponse("manager.html", {"request": request})
 
+
 @app.get("/printer", response_class=HTMLResponse)
-def printer_page(request: Request, current_user: User = Depends(get_current_user)):
-    return templates.TemplateResponse("printer.html", {"request": request})
+async def printer_page(
+        request: Request,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    orders = db.query(Order).all()
+
+    return templates.TemplateResponse("printer.html",
+                                      {"request": request, "orders": orders, "current_user": current_user})
+
 
 @app.get("/results", response_class=HTMLResponse)
 def results_page(request: Request, current_user: User = Depends(get_current_user)):
@@ -79,7 +89,7 @@ def results_page(request: Request, current_user: User = Depends(get_current_user
 @app.post("/orders")
 async def create_order(
         task_number: int = Form(...),
-        date: str = Form(...),
+        date: str = Form(...),  # Дата как строка
         subject: str = Form(...),
         material: str = Form(...),
         quantity: int = Form(...),
@@ -93,10 +103,13 @@ async def create_order(
         reinforcement: str = Form(...),
         db: Session = Depends(get_db)  # Предполагается, что get_db определен
 ):
+    # Преобразуем строку даты в объект datetime.date
+    date_object = datetime.strptime(date, '%Y-%m-%d').date()
+
     # Создаем новый заказ
     new_order = Order(
         task_number=task_number,
-        date=date,
+        date=date_object,
         subject=subject,
         material=material,
         quantity=quantity,

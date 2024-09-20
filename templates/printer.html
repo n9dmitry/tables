@@ -35,18 +35,18 @@
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ order.task_number }}</td>
-                <td>01.09.2024</td>
-                <td>Тринити</td>
-                <td>Баннер литой 450гм</td>
-                <td>6</td>
-                <td>3</td>
-                <td>3,2</td>
-                <td>6,2</td>
-                <td>да</td>
-                <td>нет</td>
-                <td>нет</td>
-                <td>12</td>
-                <td>Константин</td>
+                <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
+                <td>{{ order.subject }}</td>
+                <td>{{ order.material }}</td>
+                <td>{{ order.print_width }}</td>
+                <td>{{ order.print_height }}</td>
+                <td>{{ order.canvas_width }}</td>
+                <td>{{ order.canvas_length }}</td>
+                <td>{{ order.eyelets }}</td>
+                <td>{{ order.spike }}</td>
+                <td>{{ order.reinforcement }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.performer }}</td>
             </tr>
         {% endfor %}
         </tbody>

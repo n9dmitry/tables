@@ -45,6 +45,31 @@ def create_order(
     user: User = Depends(get_current_active_user)
 ):
     check_user_role(user)  # Проверяем роль пользователя
+
+    # Создаем таблицу, если она не существует
+    db.execute('''
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            task_number TEXT NOT NULL,
+            date TEXT NOT NULL,
+            plot TEXT NOT NULL,
+            material TEXT NOT NULL,
+            width REAL NOT NULL,
+            height REAL NOT NULL,
+            eyelets TEXT,
+            spike TEXT,
+            reinforcement TEXT,
+            quantity INTEGER NOT NULL,
+            customer TEXT NOT NULL,
+            price_per_unit REAL NOT NULL,
+            total_amount REAL NOT NULL
+        );
+    ''')
+    db.commit()  # Коммитим изменения для создания таблицы
+
+    if not customer:
+        raise HTTPException(status_code=400, detail="Поле 'customer' обязательно для заполнения.")
+
     total_amount = price_per_unit * quantity
     new_order = Order(
         task_number=task_number,
@@ -62,17 +87,22 @@ def create_order(
         total_amount=total_amount
     )
 
-    db.add(new_order)
-    db.commit()
-    db.refresh(new_order)
+    try:
+        db.add(new_order)
+        db.commit()
+        db.refresh(new_order)
+    except Exception as e:
+        db.rollback()  # Откат транзакции при ошибке
+        raise HTTPException(status_code=500, detail="Ошибка при создании заказа: " + str(e))
 
-    return {"message": "Order created successfully", "order": new_order}
+    return {"message": "Заказ успешно создан", "order": new_order}
+
+
 
 # Редактирование заказа
 @router.put("/orders/{order_id}")
 def update_order(
     order_id: int,
-    request: Request,
     task_number: str = Form(...),
     date: str = Form(...),
     plot: str = Form(...),
