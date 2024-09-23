@@ -86,12 +86,17 @@ def manager_page(request: Request,
     orders = db.query(Order).order_by(Order.id.desc()).all()
 
     return templates.TemplateResponse("manager.html",
-                                      {"request": request, "orders": orders, })
+                                      {"request": request,
+                                       "orders": orders, }
+                                      )
 
 
 @app.get("/results", response_class=HTMLResponse)
-def results_page(request: Request, current_user: User = Depends(get_current_user)):
-    return templates.TemplateResponse("results.html", {"request": request})
+def results_page(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Получение всех заказов
+    orders = db.query(Order).order_by(Order.id.desc()).all()
+    # Передача данных в шаблон
+    return templates.TemplateResponse("results.html", {"request": request, "orders": orders})
 
 
 @app.post("/orders")
@@ -138,8 +143,8 @@ async def create_order(
     return {"message": "Order created successfully", "order_id": new_order.id}
 
 
-@app.post("/orders/{order_id}/update")
-async def update_order(order_id: int,
+@app.post("/orders/update")
+async def update_order(order_id: int = Form(...),
                        customer: str = Form(...),
                        price_per_unit: int = Form(...),
                        total_amount: int = Form(...),

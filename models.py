@@ -50,6 +50,9 @@ class Order(Base):
     price_per_unit = Column(Integer, nullable=True)  # Цена за ед
     total_amount = Column(Integer, nullable=True)  # Сумма
 
+    #Доработаем модель. Пусть в ней будут необязательные поля "Площадь печати, Площадь полотна, Краски,
+    # Люверсов (всего), Спаек (всего), Усилений (всего),
+
 Base.metadata.create_all(bind=engine)
 
 def create_superuser(db: Session):
