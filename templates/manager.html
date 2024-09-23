@@ -71,11 +71,12 @@
             <div class="modal-body">
                 <form id="orderForm" action="/orders/update" method="POST" style="display: flex; flex-wrap: wrap;">
                     <div class="row">
+                        {% for order in orders %}
                         <div class="col-md-12 form-group">
-                            Текущий ID заказа: <span id="current-order-id"></span>
+                            Текущий ID заказа: <span id="current-order-id">{{ order.id }}</span>
                         </div>
+                        {% endfor %}
                         <input type="hidden" name="order_id" id="order_id" />
-
 
                         <div class="col-md-12 form-group">
                             <label for="customer">Заказчик</label>
@@ -83,13 +84,11 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="price_per_unit">Цена за ед.</label>
-                            <input type="number" class="form-control" id="price_per_unit" name="price_per_unit" step="1"
-                                   required>
+                            <input type="number" class="form-control" id="price_per_unit" name="price_per_unit" step="1" required>
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="total_amount">Сумма</label>
-                            <input type="number" class="form-control" id="total_amount" name="total_amount" step="1"
-                                   required>
+                            <input type="number" class="form-control" id="total_amount" name="total_amount" step="1" required>
                         </div>
                     </div>
                 </form>
@@ -102,16 +101,18 @@
     </div>
 </div>
 
-
 <script>
+    // JavaScript для открытия модального окна
     $(document).ready(function() {
         $(document).on('click', '.edit-btn', function() {
             var orderId = $(this).data('id');
-            $('#current-order-id').text(orderId);  // Устанавливаем текст в span
-            $('#order_id').val(orderId);  // Устанавливаем значение в скрытое поле формы
+            $('#current-order-id').text(orderId);
+            $('#order_id').val(orderId);
+            $('#orderModal').modal('show'); // Показываем модальное окно
         });
     });
 </script>
+
 
 
 {% endblock %}
