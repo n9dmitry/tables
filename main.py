@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from models import SessionLocal, create_superuser, User, Role
 from admin import router as admin_router
+from settings import router as settings_router
 from contextlib import asynccontextmanager
 
 templates = Jinja2Templates(directory="templates")
@@ -62,11 +63,12 @@ def login(
     response = templates.TemplateResponse("index.html", {
         "request": request,
         "user": user,
-        "role": user.role.value,
-        "name": user.name.value,
+        "role": user.role,  # Убрано .value
+        "name": user.name,  # Убрано .value
     })
     response.set_cookie(key="session_id", value=user.id)
     return response
+
 
 @app.get("/", response_class=RedirectResponse)
 def redirect_to_login():
@@ -113,6 +115,7 @@ def results_page(request: Request, current_user: User = Depends(get_current_user
 
 
 app.include_router(admin_router, prefix="/admin", dependencies=[Depends(get_current_user)])
+app.include_router(settings_router)
 
 if __name__ == "__main__":
     import uvicorn
