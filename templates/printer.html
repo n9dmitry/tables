@@ -30,6 +30,7 @@
             <th>Усиление</th>
         </tr>
         </thead>
+        {% if orders %}
         <tbody>
         {% for order in orders %}
         <tr>
@@ -50,6 +51,12 @@
         </tr>
         {% endfor %}
         </tbody>
+        {% else %}
+
+        <tr>
+            <td colspan="14">Нет доступных заказов</td>
+        </tr>
+        {% endif %}
     </table>
 </div>
 <!-- Модальное окно -->

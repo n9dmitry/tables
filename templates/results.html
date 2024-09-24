@@ -18,8 +18,8 @@
             <th>Краски (л)</th>
             <th>Люверсы</th>
             <th>Спайки</th>
-            <th>Ус. (кв.м)</th>
-            <th>Пол.</th>
+            <th>Усиления (кв.м)</th>
+            <th>Полотна</th>
             <th>Краски</th>
             <th>Люверсы</th>
             <th>Ус.</th>
@@ -34,41 +34,43 @@
             <th>Печатник</th>
         </tr>
         </thead>
+        {% if results %}
+
         <tbody>
+        {% for result in results %}
         <tr>
-            {% for order in orders %}
-
-            <td>{{ order.id }}</td>
-            <td>{{ order.task_number }}</td>
-            <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
-            <td>{{ order.material }}</td>
-            <td>{{ order.print_width }}{{ order.print_height }}{{ order.quantity }}</td>
-
-
-
-<!--            <td>216,00</td>-->
-<!--            <td>238,08</td>-->
-<!--            <td>3,24</td>-->
-<!--            <td>819</td>-->
-<!--            <td></td>-->
-<!--            <td></td>-->
-<!--            <td>33718,08</td>-->
-<!--            <td>3839,40</td>-->
-<!--            <td>1139,01</td>-->
-<!--            <td></td>-->
-<!--            <td>4320</td>-->
-<!--            <td>4097</td>-->
-<!--            <td></td>-->
-<!--            <td></td>-->
-<!--            <td>47114</td>-->
-<!--            <td>37500</td>-->
-<!--            <td>1875</td>-->
-<!--            <td>10059,75</td>-->
-<!--            <td>,Константин</td>-->
+            <td>{{ results.order.id }}</td>
+            <td>{{ results.order.task_number }}</td>
+            <td>{{ results.order.date.strftime("%d.%m.%Y") }}</td>
+            <td>{{ results.order.material }}</td>
+            <td>{{ results.total_print_area }}</td>
+            <!--            <td>216,00</td>-->
+            <!--            <td>238,08</td>-->
+            <!--            <td>3,24</td>-->
+            <!--            <td>819</td>-->
+            <!--            <td></td>-->
+            <!--            <td></td>-->
+            <!--            <td>33718,08</td>-->
+            <!--            <td>3839,40</td>-->
+            <!--            <td>1139,01</td>-->
+            <!--            <td></td>-->
+            <!--            <td>4320</td>-->
+            <!--            <td>4097</td>-->
+            <!--            <td></td>-->
+            <!--            <td></td>-->
+            <!--            <td>47114</td>-->
+            <!--            <td>37500</td>-->
+            <!--            <td>1875</td>-->
+            <!--            <td>10059,75</td>-->
+            <!--            <td>,Константин</td>-->
         </tr>
         {% endfor %}
-
         </tbody>
+        {% else %}
+        <tr>
+            <td colspan="14">Нет доступных заказов</td>
+        </tr>
+        {% endif %}
     </table>
 </div>
 {% endblock %}

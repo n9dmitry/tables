@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from models import SessionLocal, create_superuser, User, Order
+from models import SessionLocal, create_superuser, User, Order, Result
 from admin import router as admin_router
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -42,7 +42,6 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
 
     return user
 
-# Отображение страницы авторизации
 @app.get("/login", response_class=HTMLResponse)
 def read_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
@@ -58,11 +57,9 @@ def login(request: Request, login: str = Form(...), password: str = Form(...), d
     response.set_cookie(key="session_id", value=user.id)  # Пример установки сессии
     return response
 
-# Перенаправление с главной страницы на страницу авторизации
 @app.get("/", response_class=RedirectResponse)
 def redirect_to_login():
     return RedirectResponse(url="/login")
-
 
 
 
@@ -77,7 +74,6 @@ async def printer_page(
     return templates.TemplateResponse("printer.html",
                                       {"request": request, "orders": orders, "current_user": current_user})
 
-# Разные страницы для каждого пункта меню
 @app.get("/manager", response_class=HTMLResponse)
 def manager_page(request: Request,
         db: Session = Depends(get_db),
@@ -93,10 +89,9 @@ def manager_page(request: Request,
 
 @app.get("/results", response_class=HTMLResponse)
 def results_page(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    # Получение всех заказов
-    orders = db.query(Order).order_by(Order.id.desc()).all()
-    # Передача данных в шаблон
-    return templates.TemplateResponse("results.html", {"request": request, "orders": orders})
+    # orders = db.query(Order).order_by(Order.id.desc()).all()
+    results = db.query(Result).order_by(Result.order_id.desc()).all()
+    return templates.TemplateResponse("results.html", {"request": request, "results": results})
 
 
 @app.post("/orders")
@@ -136,8 +131,12 @@ async def create_order(
         reinforcement=reinforcement,
     )
 
+    new_result = Result(
+        order=new_order,  # Устанавливаем связь с новым заказом
+    )
     # Добавляем и коммитим заказ в БД
     db.add(new_order)
+    db.add(new_result)  # Добавляем результат
     db.commit()
 
     return {"message": "Order created successfully", "order_id": new_order.id}
