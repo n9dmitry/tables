@@ -96,8 +96,9 @@ def results_page(request: Request, db: Session = Depends(get_db), current_user: 
 
 @app.post("/orders")
 async def create_order(
+        request: Request,
         task_number: int = Form(...),
-        date: str = Form(...),  # Дата как строка
+        date: str = Form(...),
         subject: str = Form(...),
         material: str = Form(...),
         quantity: int = Form(...),
@@ -109,60 +110,111 @@ async def create_order(
         eyelets: str = Form(...),
         spike: str = Form(...),
         reinforcement: str = Form(...),
-        db: Session = Depends(get_db)  # Предполагается, что get_db определен
+        db: Session = Depends(get_db)
 ):
-    # Преобразуем строку даты в объект datetime.date
     date_object = datetime.strptime(date, '%Y-%m-%d').date()
+    existing_order = db.query(Order).filter(Order.task_number == task_number).first()
 
-    # Создаем новый заказ
-    new_order = Order(
-        task_number=task_number,
-        date=date_object,
-        subject=subject,
-        material=material,
-        quantity=quantity,
-        performer=performer,
-        print_width=print_width,
-        print_height=print_height,
-        canvas_width=canvas_width,
-        canvas_length=canvas_length,
-        eyelets=eyelets,
-        spike=spike,
-        reinforcement=reinforcement,
-    )
+    if existing_order:
+        message = "Заказ с этим номером задачи уже существует."
+        message_type = "danger"
+    else:
+        new_order = Order(
+            task_number=task_number,
+            date=date_object,
+            subject=subject,
+            material=material,
+            quantity=quantity,
+            performer=performer,
+            print_width=print_width,
+            print_height=print_height,
+            canvas_width=canvas_width,
+            canvas_length=canvas_length,
+            eyelets=eyelets,
+            spike=spike,
+            reinforcement=reinforcement,
+        )
 
-    new_result = Result(
-        order=new_order,  # Устанавливаем связь с новым заказом
-    )
-    # Добавляем и коммитим заказ в БД
-    db.add(new_order)
-    db.add(new_result)  # Добавляем результат
-    db.commit()
+        new_result = Result(order=new_order)
+        db.add(new_order)
+        db.add(new_result)
+        db.commit()
 
-    return {"message": "Order created successfully", "order_id": new_order.id}
+        message = "Заказ успешно создан!"
+        message_type = "success"
+
+    # Показать шаблон с сообщением
+    orders = db.query(Order).order_by(Order.id.desc()).all()
+    return templates.TemplateResponse("printer.html", {
+        "request": request,
+        "orders": orders,
+        "message": message,
+        "message_type": message_type
+    })
 
 
 @app.post("/orders/update")
-async def update_order(order_id: int = Form(...),
-                       customer: str = Form(...),
-                       price_per_unit: int = Form(...),
-                       total_amount: int = Form(...),
-                       db: Session = Depends(get_db)):
+async def update_order(
+        request: Request,
+        order_id: int = Form(...),
+        customer: str = Form(...),
+        price_per_unit: int = Form(...),
+        db: Session = Depends(get_db)
+):
     # Получаем заказ из БД
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        message = "Заказ не найден."
+        message_type = "danger"
+    else:
+        # Обновляем данные заказа
+        order.customer = customer
+        order.price_per_unit = price_per_unit
 
-    # Обновляем данные заказа
-    order.customer = customer
-    order.price_per_unit = price_per_unit
-    order.total_amount = total_amount
+        # Сохраняем изменения
+        db.commit()
+        order.total_amount = order.quantity * order.price_per_unit
+        db.commit()
 
-    # Сохраняем изменения
-    db.commit()
-    db.refresh(order)
+        db.refresh(order)
 
-    return {"message": "Order updated successfully", "order": order}
+        # Обновляем формулы result
+        order.result.total_print_area = order.print_width * order.print_height * order.quantity
+        order.result.total_canvas_area = order.canvas_width * order.canvas_length * order.quantity
+
+        # Здесь должен быть код для расчёта красок
+        order.result.total_paints = "?"
+
+        if order.eyelets == "да":
+            order.result.total_eyelets = (order.print_width + order.print_height) / 2  # Дописать логику
+        else:
+            order.result.total_eyelets = "нет"
+
+        if order.spike == "да":
+            order.result.total_spikes = "?"  # Дописать логику
+        else:
+            order.result.total_spikes = "нет"
+
+        if order.reinforcement == "да":
+            order.result.total_reinforcements = "?"  # Дописать логику
+        else:
+            order.result.total_reinforcements = "нет"
+
+        # Сохраняем изменения
+        db.commit()
+        db.refresh(order)
+
+        message = "Заказ обновлён успешно!"
+        message_type = "success"
+
+    # Показать шаблон с сообщением
+    orders = db.query(Order).order_by(Order.id.desc()).all()
+    return templates.TemplateResponse("printer.html", {
+        "request": request,
+        "orders": orders,
+        "message": message,
+        "message_type": message_type
+    })
 
 
 app.include_router(admin_router, prefix="/admin", dependencies=[Depends(get_current_user)])

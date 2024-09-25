@@ -5,13 +5,18 @@
 {% block manager %}
 <div class="content">
     <h1>Менеджер - Заказы</h1>
+    {% if message %}
+    <div class="alert alert-{{ message_type }} mt-3" role="alert">
+        {{ message }}
+    </div>
+{% endif %}
     <table class="table table-bordered mt-4">
         <button class="btn btn-warning mt-3 edit-btn"
                 data-toggle="modal" data-target="#orderModal">Редактировать
         </button>
         <thead class="thead-light">
         <tr>
-            <th rowspan="2">№ п/п</th>
+            <th rowspan="2">№ п/п (ID заказа)</th>
             <th rowspan="2">№ задачи</th>
             <th rowspan="2">Дата</th>
             <th rowspan="2">Сюжет</th>
@@ -86,10 +91,6 @@
                         <div class="col-md-6 form-group">
                             <label for="price_per_unit">Цена за ед.</label>
                             <input type="number" class="form-control" id="price_per_unit" name="price_per_unit" step="1" required>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label for="total_amount">Сумма</label>
-                            <input type="number" class="form-control" id="total_amount" name="total_amount" step="1" required>
                         </div>
                     </div>
                 </form>

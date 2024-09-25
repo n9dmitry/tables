@@ -5,6 +5,11 @@
 
 <div class="content">
     <h1>Печатник - Заказы</h1>
+    {% if message %}
+    <div class="alert alert-{{ message_type }}">
+        {{ message }}
+    </div>
+    {% endif %}
     <button class="btn btn-warning mt-3">Добавить</button>
     <table class="table table-bordered mt-4">
         <thead class="thead-light">
@@ -86,7 +91,13 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="material">Материал</label>
-                            <input type="text" class="form-control" id="material" name="material" required>
+                            <select class="form-control" id="material" name="material" required>
+                                <option value="" disabled selected>Выберите материал...</option>
+                                <option value="Блюбэк">Блюбэк</option>
+                                <option value="Баннер литой 450гм">Баннер литой 450гм</option>
+                                <option value="Баннер ламинат 440гм">Баннер ламинат 440гм</option>
+                                <option value="Сетка">Сетка</option>
+                            </select>
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="print_width">Ширина (печати)</label>
@@ -98,33 +109,43 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="canvas_width">Ширина (канвас)</label>
-                            <input type="number" class="form-control" id="canvas_width" name="canvas_width" step="0.01"
+                            <input type="number" class="form-control" id="canvas_width" name="canvas_width" step="0.1"
                                    required>
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="canvas_length">Длина (канвас)</label>
                             <input type="number" class="form-control" id="canvas_length" name="canvas_length"
-                                   step="0.01" required>
+                                   step="0.1" required>
+                        </div>
+                        <input type="hidden" name="eyelets" value="нет">
+                        <input type="hidden" name="reinforcement" value="нет">
+                        <input type="hidden" name="spike" value="нет">
+
+                        <div class="col-md-6 form-group">
+                            <label>Люверсы</label>
+                            <input type="checkbox" id="eyelets" name="eyelets" value="да">
                         </div>
                         <div class="col-md-6 form-group">
-                            <label for="eyelets">Люверсы</label>
-                            <input type="text" class="form-control" id="eyelets" name="eyelets">
+                            <label>Спайка</label>
+                            <input type="checkbox" id="spike" name="spike" value="да">
                         </div>
                         <div class="col-md-6 form-group">
-                            <label for="spike">Спайка</label>
-                            <input type="text" class="form-control" id="spike" name="spike">
+                            <label>Усиление</label>
+                            <input type="checkbox" id="reinforcement" name="reinforcement" value="да">
                         </div>
-                        <div class="col-md-6 form-group">
-                            <label for="reinforcement">Усиление</label>
-                            <input type="text" class="form-control" id="reinforcement" name="reinforcement">
-                        </div>
+
+
                         <div class="col-md-6 form-group">
                             <label for="quantity">Кол-во</label>
                             <input type="number" class="form-control" id="quantity" name="quantity" required>
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="performer">Исполнитель</label>
-                            <input type="text" class="form-control" id="performer" name="performer" required>
+                            <select class="form-control" id="performer" name="performer" required>
+                                <option value="" disabled selected>Выберите исполнителя...</option>
+                                <option value="Константин">Константин</option>
+                                <option value="Артём">Артём</option>
+                            </select>
                         </div>
                     </div>
                 </form>
