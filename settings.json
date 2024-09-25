@@ -1,0 +1,64 @@
+{
+    "materials": [
+        {
+            "name": "Блюбэк",
+            "price_per_sqm": 46.24,
+            "width": 1.58,
+            "length": 300.0,
+            "roll_cost": 219005555.0,
+            "note": "с НДС"
+        },
+        {
+            "name": "Баннер литой 450гм",
+            "price_per_sqm": 141.63,
+            "width": 3.2,
+            "length": 50,
+            "roll_cost": 22660,
+            "note": "с НДС"
+        },
+        {
+            "name": "Баннер ламинат 440гм",
+            "price_per_sqm": 86.91,
+            "width": 3.2,
+            "length": 50,
+            "roll_cost": 13905,
+            "note": "с НДС"
+        },
+        {
+            "name": "Сетка",
+            "price_per_sqm": 108.91,
+            "width": 3.2,
+            "length": 50,
+            "roll_cost": 17425,
+            "note": "с НДС"
+        }
+    ],
+    "accessories": [
+        {
+            "name": "Люверс",
+            "price_per_unit": 1.33,
+            "note": "с НДС"
+        }
+    ],
+    "paint": {
+        "liter_cost": 1185.0,
+        "consumption_per_sqm": 0.225,
+        "printing_cost_per_sqm": 17.775
+    },
+    "options": {
+        "additional_option": {
+            "available": "Да"
+        }
+    },
+    "eyelet_step": 0.28,
+    "performers": [
+        "Константин",
+        "Артем"
+    ],
+    "rates": {
+        "printer_rate_per_sqm": 20.0,
+        "eyelet_rate": 5.0,
+        "cutter_rate_per_sqm": 2.78,
+        "welder_rate": 50222.0
+    }
+}

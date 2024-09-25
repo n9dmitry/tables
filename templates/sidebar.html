@@ -1,28 +1,92 @@
-
-
-
 <div class="sidebar">
-    <h2>Меню</h2>
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="/printer">
-                <i class="fas fa-print"></i> Печатнику
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/manager">
-                <i class="fas fa-user-tie"></i> Менеджеру
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/results">
-                <i class="fas fa-chart-line"></i> Результаты
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/admin">
-                <i class="fas fa-tools"></i> Панель администратора
-            </a>
-        </li>
+    <h2>CRM ADV</h2>
+    <ul class="nav flex-column" style="flex-grow: 1; list-style-type: none; padding: 0;">
+        {% if role == 'Печатник' %}
+            <li class="nav-item">
+                <a class="nav-link" href="/printer">
+                    <i class="fas fa-print"></i> Печатнику
+                </a>
+            </li>
+        {% elif role == 'Менеджер' %}
+            <li class="nav-item">
+                <a class="nav-link" href="/manager">
+                    <i class="fas fa-user-tie"></i> Менеджеру
+                </a>
+            </li>
+        {% elif role == 'Администратор' or role == 'Суперпользователь' %}
+            <li class="nav-item">
+                <a class="nav-link" href="/printer">
+                    <i class="fas fa-print"></i> Печатнику
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/manager">
+                    <i class="fas fa-user-tie"></i> Менеджеру
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/results">
+                    <i class="fas fa-chart-line"></i> Результаты
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin">
+                    <i class="fas fa-tools"></i> Панель администратора
+                </a>
+            </li>
+        {% endif %}
     </ul>
+
+<form action="/logout" method="post" style="display: inline;">
+    <button type="submit" class="nav-link exit-link" style="border: none; background: none; cursor: pointer;">
+        <i class="fas fa-sign-out-alt"></i> Выйти
+    </button>
+</form>
 </div>
+
+<style>
+    .sidebar {
+        background-color: #a10000; /* Устанавливаем цвет фона */
+        padding: 20px; /* Отступы для удобства */
+        height: 100vh; /* Высота на всю высоту окна */
+        color: #ffffff; /* Цвет текста по умолчанию */
+        width: 250px; /* Фиксированная ширина меню */
+        display: flex;
+        flex-direction: column; /* Вертикальное расположение элементов */
+    }
+
+    .nav {
+        flex-grow: 1; /* Позволяет nav занять доступное пространство */
+        overflow-y: auto; /* Прокрутка, если элементов слишком много */
+        padding: 0; /* Убираем отступы */
+        margin: 0; /* Убираем отступы */
+        list-style-type: none; /* Убираем маркеры списка */
+    }
+
+    .nav-link {
+        color: #fff; /* Цвет текста по умолчанию для ссылок */
+        text-decoration: none; /* Убираем подчеркивание */
+        display: inline-block; /* Позволяет установить фиксированную ширину */
+        width: 100%; /* Занимает всю ширину родителя */
+        padding: 10px; /* Отступы для ссылок */
+    }
+
+    .nav-link:hover {
+        color: #000; /* Цвет текста при наведении на ссылки */
+        background-color: rgba(255, 255, 255, 0.1); /* Цвет фона при наведении */
+    }
+
+    .nav-item {
+        margin-bottom: 10px; /* Отступ между элементами списка */
+    }
+
+    .exit-link {
+        background-color: #c30000; /* Цвет фона кнопки "Выйти" */
+        text-align: center; /* Центрируем текст */
+        margin-top: auto; /* Перемещает кнопку "Выйти" вниз */
+    }
+
+    .exit-link:hover {
+        background-color: #f00; /* Цвет фона при наведении на кнопку "Выйти" */
+    }
+</style>
