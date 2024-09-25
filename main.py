@@ -10,6 +10,8 @@ from contextlib import asynccontextmanager
 
 templates = Jinja2Templates(directory="templates")
 
+
+
 # Зависимость для получения сессии базы данных
 def get_db():
     db = SessionLocal()
