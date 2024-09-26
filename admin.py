@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi.templating import Jinja2Templates
-from models import User, SessionLocal, Role  # Не забудьте импортировать Role
+from models import User, SessionLocal, Role
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -34,7 +34,11 @@ def check_admin_access(user: User):
 async def admin_page(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     check_admin_access(current_user)  # Проверяем доступ
     users = db.query(User).all()
-    return templates.TemplateResponse("admin.html", {"request": request, "users": users})
+    return templates.TemplateResponse("admin.html", {
+        "request": request,
+        "users": users,
+        "role": current_user.role.value  # Передаем роль пользователя
+    })
 
 @router.post("/create/")
 async def create_user(
