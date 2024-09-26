@@ -7,83 +7,86 @@
     <h1 class="text-center">Настройки</h1>
     {% if settings %}
     <table class="table table-bordered">
+        <button class="btn btn-warning mt-3 edit-btn"
+                data-toggle="modal" data-target="#orderModal">Редактировать
+        </button>
         <thead>
-            <tr>
-                <th>Опция</th>
-                <th>Значение</th>
-            </tr>
+        <tr>
+            <th>Опция</th>
+            <th>Значение</th>
+        </tr>
         </thead>
         <tbody>
-            {% for setting in settings %}
-                <tr>
-                    <td>Цена м² блюбэка</td>
-                    <td>{{ setting.blueback_price_m2 }}</td>
-                </tr>
-                <tr>
-                    <td>Цена м² баннера литого 450г</td>
-                    <td>{{ setting.banner_molded_price_m2 }}</td>
-                </tr>
-                <tr>
-                    <td>Цена м² баннера ламинат 440г</td>
-                    <td>{{ setting.banner_laminated_price_m2 }}</td>
-                </tr>
-                <tr>
-                    <td>Цена м² сетки</td>
-                    <td>{{ setting.mesh_price_m2 }}</td>
-                </tr>
-                <tr>
-                    <td>Стоимость рулона блюбэка</td>
-                    <td>{{ setting.blueback_price_roll }}</td>
-                </tr>
-                <tr>
-                    <td>Стоимость рулона баннера литого 450г</td>
-                    <td>{{ setting.banner_molded_price_roll }}</td>
-                </tr>
-                <tr>
-                    <td>Стоимость рулона баннера ламинат 440г</td>
-                    <td>{{ setting.banner_laminated_price_roll }}</td>
-                </tr>
-                <tr>
-                    <td>Стоимость рулона сетки</td>
-                    <td>{{ setting.mesh_price_roll }}</td>
-                </tr>
-                <tr>
-                    <td>Шаг люверса (м)</td>
-                    <td>{{ setting.eyelet_step }}</td>
-                </tr>
-                <tr>
-                    <td>Цена люверса</td>
-                    <td>{{ setting.eyelet_price }}</td>
-                </tr>
-                <tr>
-                    <td>Цена литра краски</td>
-                    <td>{{ setting.paint_price_liter }}</td>
-                </tr>
-                <tr>
-                    <td>Расход краски на м²</td>
-                    <td>{{ setting.paint_consumption_m2 }}</td>
-                </tr>
-                <tr>
-                    <td>Цена печати за м²</td>
-                    <td>{{ setting.print_price_m2 }}</td>
-                </tr>
-                <tr>
-                    <td>Ставка печатника за м²</td>
-                    <td>{{ setting.printer_rate_m2 }}</td>
-                </tr>
-                <tr>
-                    <td>Ставка за люверс</td>
-                    <td>{{ setting.eyelet_rate }}</td>
-                </tr>
-                <tr>
-                    <td>Ставка резчика за м²</td>
-                    <td>{{ setting.cutter_rate_m2 }}</td>
-                </tr>
-                <tr>
-                    <td>Ставка пайщика</td>
-                    <td>{{ setting.payer_rate }}</td>
-                </tr>
-            {% endfor %}
+        {% for setting in settings %}
+        <tr>
+            <td>Цена м² блюбэка</td>
+            <td>{{ setting.blueback_price_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Цена м² баннера литого 450г</td>
+            <td>{{ setting.banner_molded_price_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Цена м² баннера ламинат 440г</td>
+            <td>{{ setting.banner_laminated_price_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Цена м² сетки</td>
+            <td>{{ setting.mesh_price_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Стоимость рулона блюбэка</td>
+            <td>{{ setting.blueback_price_roll }}</td>
+        </tr>
+        <tr>
+            <td>Стоимость рулона баннера литого 450г</td>
+            <td>{{ setting.banner_molded_price_roll }}</td>
+        </tr>
+        <tr>
+            <td>Стоимость рулона баннера ламинат 440г</td>
+            <td>{{ setting.banner_laminated_price_roll }}</td>
+        </tr>
+        <tr>
+            <td>Стоимость рулона сетки</td>
+            <td>{{ setting.mesh_price_roll }}</td>
+        </tr>
+        <tr>
+            <td>Шаг люверса (м)</td>
+            <td>{{ setting.eyelet_step }}</td>
+        </tr>
+        <tr>
+            <td>Цена люверса шт</td>
+            <td>{{ setting.eyelet_price }}</td>
+        </tr>
+        <tr>
+            <td>Цена литра краски</td>
+            <td>{{ setting.paint_price_liter }}</td>
+        </tr>
+        <tr>
+            <td>Расход краски на м²</td>
+            <td>{{ setting.paint_consumption_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Цена печати за м²</td>
+            <td>{{ setting.print_price_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Ставка печатника за м²</td>
+            <td>{{ setting.printer_rate_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Ставка за люверс</td>
+            <td>{{ setting.eyelet_rate }}</td>
+        </tr>
+        <tr>
+            <td>Ставка резчика за м²</td>
+            <td>{{ setting.cutter_rate_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Ставка пайщика</td>
+            <td>{{ setting.payer_rate }}</td>
+        </tr>
+        {% endfor %}
         </tbody>
     </table>
     {% else %}
@@ -93,7 +96,6 @@
         </tr>
     </table>
     {% endif %}
-    <h2 class="mt-4">Дополнительные опции</h2>
 </div>
 
 {% endblock %}
