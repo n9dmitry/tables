@@ -221,7 +221,13 @@ async def update_order(
     check_role_access(current_user, {Role.manager, Role.superuser, Role.admin})
     # Получаем заказ из БД
     order = db.query(Order).filter(Order.id == order_id).first()
-    settings_id = db.query(Settings).all()[-1].id
+    last_setting = db.query(Settings).order_by(Settings.id.desc()).first()
+    if last_setting is not None:
+        settings_id = db.query(Settings).filter(Settings.id == last_setting.id - 1).first()
+    else:
+        settings_id = None
+
+    print(f"Looking for Settings with id: {last_setting.id - 1}")
 
     if not order:
         message = "Заказ не найден."
@@ -243,6 +249,8 @@ async def update_order(
         order.result.total_canvas_area = order.canvas_width * order.canvas_length * order.quantity
 
         order.result.total_paints = settings_id.paint_consumption_m2 * order.result.total_print_area
+
+
 
         if order.eyelets == "да":
             order.result.total_eyelets = ((order.print_width + order.print_height) * 2 / settings_id.eyelet_step + 4)  # Дописать логику
@@ -274,21 +282,17 @@ async def update_order(
 
         order.result.expenses_prints = settings_id.paint_price_liter * order.result.total_paints
 
-        order.result.expenses_eyelets = 0
-        order.result.expenses_reinforcements = 0
+        order.result.expenses_eyelets = settings_id.eyelet_price * order.result.total_eyelets
 
 
-        order.result.expenses_prints = 0
-        order.result.expenses_prints = 0
-        order.result.expenses_prints = 0
-
-
-
-
-
-
-
-
+        order.result.expenses_reinforcements = 0.1
+        order.result.salary_printer = 0.1
+        order.result.salary_eyelet_worker = 0.1
+        order.result.salary_cutter = 0.1
+        order.result.salary_welder = 0.1
+        order.result.total_expenses = 0.1
+        order.result.tax = 0.1
+        order.result.margin = 0.1
 
 
 

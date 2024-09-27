@@ -61,7 +61,7 @@ class Result(Base):
     order_id = Column(Integer, ForeignKey('orders.id'), primary_key=True)
     total_print_area = Column(Float, nullable=True)
     total_canvas_area = Column(Float, nullable=True)
-    total_paints = Column(String, nullable=True)
+    total_paints = Column(Float, nullable=True)
     total_eyelets = Column(Integer, nullable=True)
     total_spikes = Column(Integer, nullable=True)
     total_reinforcements = Column(Integer, nullable=True)
