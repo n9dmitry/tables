@@ -98,7 +98,7 @@ class Settings(Base):
     mesh_price_roll = Column(Float)  # Стоимость рулона сетки
 
     eyelet_step = Column(Float)  # Шаг люверса (м)
-    eyelet_price = Column(Float)  # Цена люверса
+    eyelet_price = Column(Float)  # Цена люверсач
 
     paint_price_liter = Column(Float)  # Цена литра краски
     paint_consumption_m2 = Column(Float)  # Расход краски на м²

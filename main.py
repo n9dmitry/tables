@@ -318,6 +318,28 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
                                        "role": current_user.role.value,
                                        "settings": settings})
 
+@app.route('/create_settings', methods=['POST'])
+def create_settings(request: Request, db: Session = Depends(get_db)):
+    # Получаем данные из формы
+    blueback_price_m2 = request.form.get('blueback_price_m2')
+    banner_molded_price_m2 = request.form.get('banner_molded_price_m2')
+    # Остальные поля также считываем
+
+    # Создаем новый объект настроек
+    new_setting = Settings(
+        updated_at=datetime.now(),
+        blueback_price_m2=float(blueback_price_m2),
+        banner_molded_price_m2=float(banner_molded_price_m2),
+        # Остальные значения аналогично
+    )
+
+    # Добавляем новую запись в базу данных
+    db.session.add(new_setting)
+    db.session.commit()
+
+    # Перенаправляем обратно на страницу с настройками
+    return templates.TemplateResponse("settings.html",)
+
 
 
 app.include_router(admin_router, prefix="/admin", dependencies=[Depends(get_current_user)])

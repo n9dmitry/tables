@@ -6,7 +6,7 @@ import json
 
 settings_router = APIRouter()
 templates = Jinja2Templates(directory="templates")
-
+#
 # @settings_router.get("/settings", response_class=HTMLResponse)
 # async def read_settings(request: Request):
 #     check_role_access(current_user, {Role.manager, Role.superuser, Role.admin})
