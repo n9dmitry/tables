@@ -4,59 +4,166 @@
 {% block result %}
 
 <div class="content">
-        <h1>Печатник - Заказы</h1>
-    <table class="table table-striped table-bordered mt-4">
-        <button class="btn btn-yellow">Добавить</button>
-            <thead class="thead-light">
+    <h1>Печатник - Заказы</h1>
+    {% if message %}
+    <div class="alert alert-{{ message_type }}">
+        {{ message }}
+    </div>
+    {% endif %}
+    <button class="btn btn-warning mt-3">Добавить</button>
+    <table class="table table-bordered mt-4">
+        <thead class="thead-light">
+        <tr>
+            <th rowspan="2">№ п/п</th>
+            <th rowspan="2">№ задачи</th>
+            <th rowspan="2">Дата</th>
+            <th rowspan="2">Сюжет</th>
+            <th rowspan="2">Материал</th>
+            <th colspan="2">ПОЛЕ ПЕЧАТИ (М)</th>
+            <th colspan="2">ПОЛОТНО (М)</th>
+            <th colspan="3">ДОП ОПЕРАЦИИ</th>
+            <th rowspan="2">Кол-во</th>
+            <th rowspan="2">Исполнитель</th>
+        </tr>
+        <tr>
+            <th>Ширина</th>
+            <th>Высота</th>
+            <th>Ширина</th>
+            <th>Длина</th>
+            <th>Люверсы</th>
+            <th>Спайка</th>
+            <th>Усиление</th>
+        </tr>
+        </thead>
+        {% if orders %}
+        <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.task_number }}</td>
+            <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
+            <td>{{ order.subject }}</td>
+            <td>{{ order.material }}</td>
+            <td>{{ order.print_width }}</td>
+            <td>{{ order.print_height }}</td>
+            <td>{{ order.canvas_width }}</td>
+            <td>{{ order.canvas_length }}</td>
+            <td>{{ order.eyelets }}</td>
+            <td>{{ order.spike }}</td>
+            <td>{{ order.reinforcement }}</td>
+            <td>{{ order.quantity }}</td>
+            <td>{{ order.performer }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        {% else %}
 
-                <tr>
-                    <th>№ п/п</th>
-                    <th>№ задачи</th>
-                    <th>Дата</th>
-                    <th>Сюжет</th>
-                    <th>Материал</th>
-                    <th colspan="2">ПОЛЕ ПЕЧАТИ (М)</th>
-                    <th colspan="2">ПОЛОТНО (М)</th>
-                    <th colspan="3">ДОП ОПЕРАЦИИ</th>
-                    <th>Кол-во</th>
-                    <th>Исполнитель</th>
-                </tr>
-                <tr>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th>Ширина</th>
-                    <th>Высота</th>
-                    <th>Ширина</th>
-                    <th>Длина</th>
-                    <th>Люверсы</th>
-                    <th>Спайка</th>
-                    <th>Усиление</th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td></td>
-                    <td>01.09.2024</td>
-                    <td>Тринити</td>
-                    <td>Баннер литой 450гм</td>
-                    <td>6</td>
-                    <td>3</td>
-                    <td>3,2</td>
-                    <td>6,2</td>
-                    <td>да</td>
-                    <td>нет</td>
-                    <td>нет</td>
-                    <td>12</td>
-                    <td>Константин</td>
-                </tr>
-            </tbody>
-        </table>
+        <tr>
+            <td colspan="14">Нет доступных заказов</td>
+        </tr>
+        {% endif %}
+    </table>
 </div>
+<!-- Модальное окно -->
+<div class="modal" id="orderModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="border: 2px solid #007bff; border-radius: 15px; padding: 20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить заказ</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="orderForm" action="/orders" method="POST" style="display: flex; flex-wrap: wrap;">
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="task_number">№ задачи</label>
+                            <input type="number" class="form-control" id="task_number" name="task_number" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="date">Дата</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="subject">Сюжет</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="material">Материал</label>
+                            <select class="form-control" id="material" name="material" required>
+                                <option value="" disabled selected>Выберите материал...</option>
+                                <option value="Блюбэк">Блюбэк</option>
+                                <option value="Баннер литой 450гм">Баннер литой 450гм</option>
+                                <option value="Баннер ламинат 440гм">Баннер ламинат 440гм</option>
+                                <option value="Сетка">Сетка</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="print_width">Ширина (печати)</label>
+                            <input type="number" class="form-control" id="print_width" name="print_width" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="print_height">Высота (печати)</label>
+                            <input type="number" class="form-control" id="print_height" name="print_height" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="canvas_width">Ширина (канвас)</label>
+                            <input type="number" class="form-control" id="canvas_width" name="canvas_width" step="0.1"
+                                   required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="canvas_length">Длина (канвас)</label>
+                            <input type="number" class="form-control" id="canvas_length" name="canvas_length"
+                                   step="0.1" required>
+                        </div>
+                        <input type="hidden" name="eyelets" value="нет">
+                        <input type="hidden" name="reinforcement" value="нет">
+                        <input type="hidden" name="spike" value="нет">
+
+                        <div class="col-md-6 form-group">
+                            <label>Люверсы</label>
+                            <input type="checkbox" id="eyelets" name="eyelets" value="да">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Спайка</label>
+                            <input type="checkbox" id="spike" name="spike" value="да">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Усиление</label>
+                            <input type="checkbox" id="reinforcement" name="reinforcement" value="да">
+                        </div>
+
+
+                        <div class="col-md-6 form-group">
+                            <label for="quantity">Кол-во</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="performer">Исполнитель</label>
+                            <select class="form-control" id="performer" name="performer" required>
+                                <option value="" disabled selected>Выберите исполнителя...</option>
+                                <option value="Константин">Константин</option>
+                                <option value="Артём">Артём</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="submit" class="btn btn-primary" form="orderForm">Ок</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Открываем модальное окно при нажатии на кнопку "Добавить"
+    document.querySelector('.btn-warning').addEventListener('click', function() {
+      $('#orderModal').modal('show');
+    });
+</script>
 
 {% endblock %}

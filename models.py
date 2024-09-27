@@ -1,18 +1,19 @@
-from sqlalchemy import create_engine, Column, Integer, String, Enum, Numeric
+from typing import List
+
+from sqlalchemy import create_engine, Column, Integer, String, Float, Enum, ForeignKey, Date
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, relationship
 import enum
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import inspect
+from sqlalchemy.orm import Mapped
 
-# Создаем базу данных
-DATABASE_URL = "sqlite:///./example.db"
+DATABASE_URL = "sqlite:///database.db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Определяем базу данных
 Base = declarative_base()
 
-# Перечисление ролей пользователя
 class Role(str, enum.Enum):
     superuser = "Суперпользователь"
     admin = "Администратор"
@@ -20,82 +21,96 @@ class Role(str, enum.Enum):
     printer = "Печатник"
     guest = "Гость"
 
-# Описание модели пользователя
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)          # Имя
-    surname = Column(String, index=True)       # Фамилия
-    email = Column(String, unique=True, index=True)  # Email
-    password = Column(String)                  # Пароль (обычный текст)
-    login = Column(String, unique=True, index=True)  # Логин
-    role = Column(Enum(Role), index=True)     # Роль пользователя
+    name = Column(String, index=True)
+    surname = Column(String, index=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String)
+    login = Column(String, unique=True, index=True)
+    role = Column(Enum(Role), index=True)
 
-# Описание модели материала
-class Material(Base):
-    __tablename__ = "materials"
+class Order(Base):
+    __tablename__ = 'orders'
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)                        # Название
-    price_per_sqm = Column(Numeric(10, 2))                  # Цена на кв.м
-    width = Column(Numeric(5, 2))                            # Ширина
-    length = Column(Integer)                                 # Длина
-    roll_cost = Column(Numeric(10, 2))                      # Стоимость рулона
-    note = Column(String)                                    # Примечание
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    task_number = Column(Integer, nullable=False)
+    date = Column(Date, nullable=False)
+    subject = Column(String, nullable=False)
+    material = Column(String, nullable=False)
+    quantity = Column(Integer, nullable=False)
+    performer = Column(String, nullable=False)
+    print_width = Column(Float, nullable=False)
+    print_height = Column(Float, nullable=False)
+    canvas_width = Column(Float, nullable=False)
+    canvas_length = Column(Float, nullable=False)
+    eyelets = Column(String, nullable=False)
+    spike = Column(String, nullable=False)
+    reinforcement = Column(String, nullable=False)
+    customer = Column(String, nullable=True)
+    price_per_unit = Column(Integer, nullable=True)
+    total_amount = Column(Integer, nullable=True)
 
-# Описание модели комплектующих
-class Component(Base):
-    __tablename__ = "components"
+    result: Mapped["Result"] = relationship(back_populates="order")
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)                        # Название
-    price_per_unit = Column(Numeric(10, 2))                 # Цена за штуку
+class Result(Base):
+    __tablename__ = 'results'
 
-# Описание модели краски
-class Paint(Base):
-    __tablename__ = "paints"
+    order_id = Column(Integer, ForeignKey('orders.id'), primary_key=True)
+    total_print_area = Column(Float, nullable=True)
+    total_canvas_area = Column(Float, nullable=True)
+    total_paints = Column(String, nullable=True)
+    total_eyelets = Column(Integer, nullable=True)
+    total_spikes = Column(Integer, nullable=True)
+    total_reinforcements = Column(Integer, nullable=True)
 
-    id = Column(Integer, primary_key=True, index=True)
-    price_per_liter = Column(Numeric(10, 2))                # Стоимость литра
-    consumption_per_sqm = Column(Numeric(10, 3))            # Расход (л)
-    price_per_sqm_printing = Column(Numeric(10, 2))         # Цена за кв.м печати
+    expenses_canvas = Column(Float, nullable=True)
+    expenses_prints = Column(Float, nullable=True)
+    expenses_eyelets = Column(Float, nullable=True)
+    expenses_reinforcements = Column(Float, nullable=True)
+    salary_printer = Column(Float, nullable=True)
+    salary_eyelet_worker = Column(Float, nullable=True)
+    salary_cutter = Column(Float, nullable=True)
+    salary_welder = Column(Float, nullable=True)
+    total_expenses = Column(Float, nullable=True)
+    tax = Column(Float, nullable=True)
+    margin = Column(Float, nullable=True)
 
-# Описание модели дополнительной опции
-class Option(Base):
-    __tablename__ = "options"
+    order: Mapped["Order"] = relationship(back_populates="result")
 
-    id = Column(Integer, primary_key=True, index=True)
-    option = Column(String, index=True)                      # Опция (да/нет)
 
-# Описание модели шага люверса
-class GrommetStep(Base):
-    __tablename__ = "grommet_steps"
+class Settings(Base):
+    __tablename__ = 'settings'
 
-    id = Column(Integer, primary_key=True, index=True)
-    step_size = Column(Numeric(5, 2))                        # Шаг люверса (м)
+    id = Column(Integer, primary_key=True)
+    updated_at = Column(Date, nullable=False)
 
-# Описание модели исполнителя
-class Executor(Base):
-    __tablename__ = "executors"
+    blueback_price_m2 = Column(Float)  # Цена м² блюбэка
+    banner_molded_price_m2 = Column(Float)  # Цена м² баннера литого 450г
+    banner_laminated_price_m2 = Column(Float)  # Цена м² баннера ламинат 440г
+    mesh_price_m2 = Column(Float)  # Цена м² сетки
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)                        # Имя исполнителя
+    blueback_price_roll = Column(Float)  # Стоимость рулона блюбэка
+    banner_molded_price_roll = Column(Float)  # Стоимость рулона баннера литого 450г
+    banner_laminated_price_roll = Column(Float)  # Стоимость рулона баннера ламинат 440г
+    mesh_price_roll = Column(Float)  # Стоимость рулона сетки
 
-# Описание модели ставок
-class Rates(Base):
-    __tablename__ = "rates"
+    eyelet_step = Column(Float)  # Шаг люверса (м)
+    eyelet_price = Column(Float)  # Цена люверсач
 
-    id = Column(Integer, primary_key=True, index=True)
-    print_rate_per_sqm = Column(Numeric(10, 2))            # Ставка печатника за кв.м
-    grommet_rate = Column(Numeric(10, 2))                   # Ставка за люверс
-    cutter_rate_per_sqm = Column(Numeric(10, 2))            # Ставка резчика за кв.м
-    welder_rate = Column(Numeric(10, 2))                    # Ставка пайщика
+    paint_price_liter = Column(Float)  # Цена литра краски
+    paint_consumption_m2 = Column(Float)  # Расход краски на м²
+    print_price_m2 = Column(Float)  # Цена печати за м²
 
-# Создание таблиц
+    printer_rate_m2 = Column(Float)  # Ставка печатника за м²
+    eyelet_rate = Column(Float)  # Ставка за люверс
+    cutter_rate_m2 = Column(Float)  # Ставка резчика за м²
+    payer_rate = Column(Float)  # Ставка пайщика
+
 Base.metadata.create_all(bind=engine)
 
-# Функция для создания суперпользователя
 def create_superuser(db: Session):
     superuser = User(
         name="admin",
@@ -103,12 +118,12 @@ def create_superuser(db: Session):
         email="admin@example.com",
         password="admin",
         login="admin",
-        role=Role.superuser  # Задаем роль суперпользователя
+        role=Role.superuser
     )
     try:
         db.add(superuser)
         db.commit()
         db.refresh(superuser)
     except IntegrityError:
-        db.rollback()  # В случае ошибки, откатим изменения
+        db.rollback()
 

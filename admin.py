@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi.templating import Jinja2Templates
-from models import User, SessionLocal, Role  # Не забудьте импортировать Role
+from models import User, SessionLocal, Role
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -39,7 +39,6 @@ async def admin_page(request: Request, db: Session = Depends(get_db), current_us
         "users": users,
         "role": current_user.role.value  # Передаем роль пользователя
     })
-
 
 @router.post("/create/")
 async def create_user(
