@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy import create_engine, Column, Integer, String, Float, Enum, ForeignKey, Date
+from sqlalchemy import create_engine, Column, Integer, String, Float, Enum, ForeignKey, Date, DECIMAL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
 import enum

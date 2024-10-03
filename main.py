@@ -11,7 +11,6 @@ from functools import wraps
 from settings import settings_router
 from datetime import date
 
-
 templates = Jinja2Templates(directory="templates")
 
 
@@ -221,13 +220,17 @@ async def update_order(
     check_role_access(current_user, {Role.manager, Role.superuser, Role.admin})
     # Получаем заказ из БД
     order = db.query(Order).filter(Order.id == order_id).first()
-    last_setting = db.query(Settings).order_by(Settings.id.desc()).first()
-    if last_setting is not None:
-        settings_id = db.query(Settings).filter(Settings.id == last_setting.id - 1).first()
-    else:
-        settings_id = None
+    # last_setting = db.query(Settings).order_by(Settings.id.desc()).first()
+    # if last_setting is not None:
+    #     settings_id = db.query(Settings).filter(Settings.id == last_setting.id - 1).first()
+    # else:
+    #     settings_id = None
+    # print(last_setting.id)
+    # print(settings_id)
 
-    print(f"Looking for Settings with id: {last_setting.id - 1}")
+
+    settings = db.query(Settings).order_by(Settings.id.desc()).all()
+    settings_id = settings[0]
 
     if not order:
         message = "Заказ не найден."
@@ -250,10 +253,9 @@ async def update_order(
 
         order.result.total_paints = settings_id.paint_consumption_m2 * order.result.total_print_area
 
-
-
-        if order.eyelets == "да":
-            order.result.total_eyelets = ((order.print_width + order.print_height) * 2 / settings_id.eyelet_step + 4)  # Дописать логику
+        if order.eyelets.lower() == "да":
+            order.result.total_eyelets = (
+                    ((order.print_width + order.print_height) * 2 / settings_id.eyelet_step + 4) * order.quantity)
         else:
             order.result.total_eyelets = False
 
@@ -268,36 +270,46 @@ async def update_order(
             order.result.total_reinforcements = (order.print_width + order.print_height) * 2 * 0.1 * order.quantity
         else:
             order.result.total_reinforcements = False
-
+        # expenses_canvas
         if order.material == "Блюбэк":
-            order.result.expenses_canvas = settings_id.blueback_price_m2 * order.print_width
+            order.result.expenses_canvas = settings_id.blueback_price_m2 * order.result.total_canvas_area
         elif order.material == "Баннер литой 450гм":
-            order.result.expenses_canvas = settings_id.banner_molded_price_m2 * order.print_width
+            order.result.expenses_canvas = settings_id.banner_molded_price_m2 * order.result.total_canvas_area
         elif order.material == "Баннер ламинат 440гм":
-            order.result.expenses_canvas = settings_id.banner_laminated_price_m2 * order.print_width
+            order.result.expenses_canvas = settings_id.banner_laminated_price_m2 * order.result.total_canvas_area
         elif order.material == "Сетка":
-            order.result.expenses_canvas = settings_id.mesh_price_m2 * order.print_width
+            order.result.expenses_canvas = settings_id.mesh_price_m2 * order.result.total_canvas_area
         else:
             order.result.expenses_canvas = False
 
         order.result.expenses_prints = settings_id.paint_price_liter * order.result.total_paints
 
         order.result.expenses_eyelets = settings_id.eyelet_price * order.result.total_eyelets
+        # expenses_reinforcements
+        if order.reinforcement == "да":
+            order.result.expenses_reinforcements = settings_id.reinforcement_price * order.result.total_reinforcements
+        else:
+            order.result.expenses_reinforcements = False
 
+        order.result.salary_printer = settings_id.printer_rate_m2 * order.result.total_print_area
 
-        order.result.expenses_reinforcements = 0.1
-        order.result.salary_printer = 0.1
-        order.result.salary_eyelet_worker = 0.1
-        order.result.salary_cutter = 0.1
-        order.result.salary_welder = 0.1
-        order.result.total_expenses = 0.1
-        order.result.tax = 0.1
-        order.result.margin = 0.1
+        order.result.salary_eyelet_worker = settings_id.eyelet_rate * order.result.total_eyelets
 
+        if order.material == "Блюбэк":
+            order.result.salary_cutter = settings_id.cutter_rate_m2 * order.result.total_print_area
+        else:
+            order.result.salary_cutter = False
 
+        if order.result.total_eyelets is not False:
+            order.result.salary_welder = settings_id.payer_rate * order.result.total_spikes
+        else:
+            order.result.salary_welder = False
 
+        order.result.total_expenses = order.result.expenses_canvas + order.result.expenses_prints + order.result.expenses_eyelets + order.result.expenses_reinforcements + order.result.salary_printer + order.result.salary_eyelet_worker + order.result.salary_cutter + order.result.salary_welder
+        order.result.tax = 0.05 * order.total_amount
+        order.result.margin = order.total_amount - order.result.tax - order.result.total_expenses
 
-            # Сохраняем изменения
+        # Сохраняем изменения
         db.commit()
         db.refresh(order)
 
@@ -317,9 +329,9 @@ async def update_order(
 
 
 @app.get("/settings", response_class=HTMLResponse)
-async def read_settings(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def read_settings(request: Request, current_user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
     check_role_access(current_user, {Role.superuser, Role.admin})
-
     # Проверяем, есть ли настройки в базе данных
     settings = db.query(Settings).order_by(Settings.id.desc()).all()
 
@@ -349,8 +361,8 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
         db.commit()
 
         # Обновляем список настроек
-    settings = db.query(Settings).all()
     actual_settings = settings[0]
+
     # Передаем настройки в шаблон
     return templates.TemplateResponse("settings.html",
                                       {"request": request,
@@ -359,6 +371,7 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
                                        "settings": settings,
                                        "actual_settings": actual_settings
                                        })
+
 
 @app.post('/create_settings')
 async def create_settings(request: Request, db: Session = Depends(get_db)):
@@ -410,8 +423,7 @@ async def create_settings(request: Request, db: Session = Depends(get_db)):
     db.commit()
 
     # Перенаправляем обратно на страницу с настройками
-    return templates.TemplateResponse("settings.html", {"request": request})
-
+    return RedirectResponse(url='/settings', status_code=303)
 
 
 app.include_router(admin_router, prefix="/admin", dependencies=[Depends(get_current_user)])
