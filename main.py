@@ -10,6 +10,8 @@ from fastapi.staticfiles import StaticFiles
 from functools import wraps
 from settings import settings_router
 from datetime import date
+from decimal import Decimal
+
 
 templates = Jinja2Templates(directory="templates")
 
@@ -296,7 +298,7 @@ async def update_order(
         order.result.salary_eyelet_worker = settings_id.eyelet_rate * order.result.total_eyelets
 
         if order.material == "Блюбэк":
-            order.result.salary_cutter = settings_id.cutter_rate_m2 * order.result.total_print_area
+            order.result.salary_cutter = settings_id.cutter_rate_m2 * order.result.total_eyelets
         else:
             order.result.salary_cutter = False
 
