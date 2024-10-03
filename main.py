@@ -221,6 +221,14 @@ async def update_order(
     check_role_access(current_user, {Role.manager, Role.superuser, Role.admin})
     # Получаем заказ из БД
     order = db.query(Order).filter(Order.id == order_id).first()
+    last_setting = db.query(Settings).order_by(Settings.id.desc()).first()
+    if last_setting is not None:
+        settings_id = db.query(Settings).filter(Settings.id == last_setting.id - 1).first()
+    else:
+        settings_id = None
+
+    print(f"Looking for Settings with id: {last_setting.id - 1}")
+
     if not order:
         message = "Заказ не найден."
         message_type = "danger"
@@ -240,25 +248,56 @@ async def update_order(
         order.result.total_print_area = order.print_width * order.print_height * order.quantity
         order.result.total_canvas_area = order.canvas_width * order.canvas_length * order.quantity
 
-        # Здесь должен быть код для расчёта красок
-        order.result.total_paints = "?"
+        order.result.total_paints = settings_id.paint_consumption_m2 * order.result.total_print_area
+
+
 
         if order.eyelets == "да":
-            order.result.total_eyelets = (order.print_width + order.print_height) / 2  # Дописать логику
+            order.result.total_eyelets = ((order.print_width + order.print_height) * 2 / settings_id.eyelet_step + 4)  # Дописать логику
         else:
-            order.result.total_eyelets = "нет"
+            order.result.total_eyelets = False
 
         if order.spike == "да":
-            order.result.total_spikes = "?"  # Дописать логику
+            max_value = max(order.print_width, order.print_height)
+            min_value = min(order.print_width, order.print_height)
+            order.result.total_spikes = (max_value / 3 - 1) * min_value * order.quantity
         else:
-            order.result.total_spikes = "нет"
+            order.result.total_spikes = False
 
         if order.reinforcement == "да":
-            order.result.total_reinforcements = "?"  # Дописать логику
+            order.result.total_reinforcements = (order.print_width + order.print_height) * 2 * 0.1 * order.quantity
         else:
-            order.result.total_reinforcements = "нет"
+            order.result.total_reinforcements = False
 
-        # Сохраняем изменения
+        if order.material == "Блюбэк":
+            order.result.expenses_canvas = settings_id.blueback_price_m2 * order.print_width
+        elif order.material == "Баннер литой 450гм":
+            order.result.expenses_canvas = settings_id.banner_molded_price_m2 * order.print_width
+        elif order.material == "Баннер ламинат 440гм":
+            order.result.expenses_canvas = settings_id.banner_laminated_price_m2 * order.print_width
+        elif order.material == "Сетка":
+            order.result.expenses_canvas = settings_id.mesh_price_m2 * order.print_width
+        else:
+            order.result.expenses_canvas = False
+
+        order.result.expenses_prints = settings_id.paint_price_liter * order.result.total_paints
+
+        order.result.expenses_eyelets = settings_id.eyelet_price * order.result.total_eyelets
+
+
+        order.result.expenses_reinforcements = 0.1
+        order.result.salary_printer = 0.1
+        order.result.salary_eyelet_worker = 0.1
+        order.result.salary_cutter = 0.1
+        order.result.salary_welder = 0.1
+        order.result.total_expenses = 0.1
+        order.result.tax = 0.1
+        order.result.margin = 0.1
+
+
+
+
+            # Сохраняем изменения
         db.commit()
         db.refresh(order)
 
@@ -282,7 +321,8 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
     check_role_access(current_user, {Role.superuser, Role.admin})
 
     # Проверяем, есть ли настройки в базе данных
-    settings = db.query(Settings).all()
+    settings = db.query(Settings).order_by(Settings.id.desc()).all()
+
     if not settings:
         # Создаем экземпляр настроек с предопределенными значениями
         default_settings = Settings(
@@ -309,36 +349,68 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
         db.commit()
 
         # Обновляем список настроек
-        settings = db.query(Settings).all()
-
+    settings = db.query(Settings).all()
+    actual_settings = settings[0]
     # Передаем настройки в шаблон
     return templates.TemplateResponse("settings.html",
                                       {"request": request,
                                        "user": current_user,
                                        "role": current_user.role.value,
-                                       "settings": settings})
+                                       "settings": settings,
+                                       "actual_settings": actual_settings
+                                       })
 
-@app.route('/create_settings', methods=['POST'])
-def create_settings(request: Request, db: Session = Depends(get_db)):
+@app.post('/create_settings')
+async def create_settings(request: Request, db: Session = Depends(get_db)):
     # Получаем данные из формы
-    blueback_price_m2 = request.form.get('blueback_price_m2')
-    banner_molded_price_m2 = request.form.get('banner_molded_price_m2')
-    # Остальные поля также считываем
+    form_data = await request.form()  # Используем await для получения данных
+
+    blueback_price_m2 = form_data.get('blueback_price_m2')
+    banner_molded_price_m2 = form_data.get('banner_molded_price_m2')
+    banner_laminated_price_m2 = form_data.get('banner_laminated_price_m2')
+    mesh_price_m2 = form_data.get('mesh_price_m2')
+    blueback_price_roll = form_data.get('blueback_price_roll')
+    banner_molded_price_roll = form_data.get('banner_molded_price_roll')
+    banner_laminated_price_roll = form_data.get('banner_laminated_price_roll')
+    mesh_price_roll = form_data.get('mesh_price_roll')
+    eyelet_step = form_data.get('eyelet_step')
+    eyelet_price = form_data.get('eyelet_price')
+    paint_price_liter = form_data.get('paint_price_liter')
+    paint_consumption_m2 = form_data.get('paint_consumption_m2')
+    print_price_m2 = form_data.get('print_price_m2')
+    printer_rate_m2 = form_data.get('printer_rate_m2')
+    eyelet_rate = form_data.get('eyelet_rate')
+    cutter_rate_m2 = form_data.get('cutter_rate_m2')
+    payer_rate = form_data.get('payer_rate')
 
     # Создаем новый объект настроек
     new_setting = Settings(
         updated_at=datetime.now(),
         blueback_price_m2=float(blueback_price_m2),
         banner_molded_price_m2=float(banner_molded_price_m2),
-        # Остальные значения аналогично
+        banner_laminated_price_m2=float(banner_laminated_price_m2),
+        mesh_price_m2=float(mesh_price_m2),
+        blueback_price_roll=float(blueback_price_roll),
+        banner_molded_price_roll=float(banner_molded_price_roll),
+        banner_laminated_price_roll=float(banner_laminated_price_roll),
+        mesh_price_roll=float(mesh_price_roll),
+        eyelet_step=float(eyelet_step),
+        eyelet_price=float(eyelet_price),
+        paint_price_liter=float(paint_price_liter),
+        paint_consumption_m2=float(paint_consumption_m2),
+        print_price_m2=float(print_price_m2),
+        printer_rate_m2=float(printer_rate_m2),
+        eyelet_rate=float(eyelet_rate),
+        cutter_rate_m2=float(cutter_rate_m2),
+        payer_rate=float(payer_rate)
     )
 
     # Добавляем новую запись в базу данных
-    db.session.add(new_setting)
-    db.session.commit()
+    db.add(new_setting)
+    db.commit()
 
     # Перенаправляем обратно на страницу с настройками
-    return templates.TemplateResponse("settings.html",)
+    return templates.TemplateResponse("settings.html", {"request": request})
 
 
 
