@@ -7,8 +7,8 @@
     <h1 class="text-center">Настройки</h1>
     {% if settings %}
     <table class="table table-bordered">
-        <button class="btn btn-warning mt-3 edit-btn"
-                data-toggle="modal" data-target="#orderModal">Редактировать
+        <button class="btn btn-warning mt-3" data-toggle="modal" data-target="#editSettingsModal">
+            Редактировать
         </button>
         <thead>
         <tr>
@@ -101,28 +101,29 @@
     </table>
     {% endif %}
 </div>
-<!-- Модальное окно для добавления новых настроек -->
-<div class="modal fade" id="createSettingsModal" tabindex="-1" role="dialog" aria-labelledby="createSettingsModalLabel" aria-hidden="true">
+
+<!-- Модальное окно для редактирования настроек -->
+<div class="modal fade" id="editSettingsModal" tabindex="-1" role="dialog" aria-labelledby="editSettingsModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form method="POST" action="{{ url_for('create_settings') }}">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createSettingsModalLabel">Добавить Настройки</h5>
+                    <h5 class="modal-title" id="editSettingsModalLabel">Редактировать Настройки</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <!-- Поля для всех настроек -->
+                    <!-- Поля для редактирования настроек -->
                     <div class="form-group">
                         <label for="blueback_price_m2">Цена м² блюбэка</label>
-                        <input type="number" step="0.01" class="form-control" id="blueback_price_m2" name="blueback_price_m2" required>
+                        <input type="number" step="0.01" class="form-control" id="blueback_price_m2" name="blueback_price_m2" value="{{ setting.blueback_price_m2 }}" required>
                     </div>
                     <div class="form-group">
                         <label for="banner_molded_price_m2">Цена м² баннера литого</label>
-                        <input type="number" step="0.01" class="form-control" id="banner_molded_price_m2" name="banner_molded_price_m2" required>
+                        <input type="number" step="0.01" class="form-control" id="banner_molded_price_m2" name="banner_molded_price_m2" value="{{ setting.banner_molded_price_m2 }}" required>
                     </div>
-                    <!-- Остальные поля настроек: цены рулонов, краски, печати, ставки и т.д. -->
+                    <!-- Добавьте аналогичные поля для других настроек -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
@@ -132,12 +133,5 @@
         </div>
     </div>
 </div>
-<script>
-    // Открываем модальное окно при нажатии на кнопку "Добавить"
-    document.querySelector('.btn-warning').addEventListener('click', function() {
-      $('#orderModal').modal('show');
-    });
-</script>
-
 
 {% endblock %}
