@@ -250,66 +250,86 @@ async def update_order(
         db.refresh(order)
 
         # Обновляем формулы result
-        order.result.total_print_area = order.print_width * order.print_height * order.quantity
-        order.result.total_canvas_area = order.canvas_width * order.canvas_length * order.quantity
+        def round_custom(value):
+            return round(value, 2) if value is not False else False
 
-        order.result.total_paints = settings_id.paint_consumption_m2 * order.result.total_print_area
+        # Вычисляем общие площади
+        order.result.total_print_area = round_custom(
+            order.print_width * order.print_height * order.quantity)
+        order.result.total_canvas_area = round_custom(
+            order.canvas_width * order.canvas_length * order.quantity)
 
+        # Общее количество красок
+        order.result.total_paints = round_custom(
+            settings_id.paint_consumption_m2 * order.result.total_print_area)
+
+        # Люверсы
         if order.eyelets.lower() == "да":
-            order.result.total_eyelets = (
-                    ((order.print_width + order.print_height) * 2 / settings_id.eyelet_step + 4) * order.quantity)
+            order.result.total_eyelets = round_custom(
+                ((order.print_width + order.print_height) * 2 / settings_id.eyelet_step + 4) * order.quantity)
         else:
             order.result.total_eyelets = False
 
+        # Шипы
         if order.spike == "да":
-            max_value = max(order.print_width, order.print_height)
-            min_value = min(order.print_width, order.print_height)
-            order.result.total_spikes = (max_value / 3 - 1) * min_value * order.quantity
+            order.result.total_spikes = round_custom(((max(order.print_width,
+                                                           order.print_height) / 3 - 1) * min(
+                order.print_width, order.print_height)) * order.quantity)
         else:
             order.result.total_spikes = False
 
+        # Укрепления
         if order.reinforcement == "да":
-            order.result.total_reinforcements = (order.print_width + order.print_height) * 2 * 0.1 * order.quantity
+            order.result.total_reinforcements = round_custom(
+                (order.print_width + order.print_height) * 2 * 0.1 * order.quantity)
         else:
             order.result.total_reinforcements = False
-        # expenses_canvas
-        if order.material == "Блюбэк":
-            order.result.expenses_canvas = settings_id.blueback_price_m2 * order.result.total_canvas_area
-        elif order.material == "Баннер литой 450гм":
-            order.result.expenses_canvas = settings_id.banner_molded_price_m2 * order.result.total_canvas_area
-        elif order.material == "Баннер ламинат 440гм":
-            order.result.expenses_canvas = settings_id.banner_laminated_price_m2 * order.result.total_canvas_area
-        elif order.material == "Сетка":
-            order.result.expenses_canvas = settings_id.mesh_price_m2 * order.result.total_canvas_area
-        else:
-            order.result.expenses_canvas = False
 
-        order.result.expenses_prints = settings_id.paint_price_liter * order.result.total_paints
+        # Расходы на.canvas
+        canvas_prices = {
+            "Блюбэк": settings_id.blueback_price_m2,
+            "Баннер литой 450гм": settings_id.banner_molded_price_m2,
+            "Баннер ламинат 440гм": settings_id.banner_laminated_price_m2,
+            "Сетка": settings_id.mesh_price_m2
+        }
+        order.result.expenses_canvas = round_custom(
+            canvas_prices.get(order.material, False) * order.result.total_canvas_area)
 
-        order.result.expenses_eyelets = settings_id.eyelet_price * order.result.total_eyelets
-        # expenses_reinforcements
-        if order.reinforcement == "да":
-            order.result.expenses_reinforcements = settings_id.reinforcement_price * order.result.total_reinforcements
-        else:
-            order.result.expenses_reinforcements = False
+        # Расходы краски и люверсы
+        order.result.expenses_prints = round_custom(
+            settings_id.paint_price_liter * order.result.total_paints)
+        order.result.expenses_eyelets = round_custom(settings_id.eyelet_price * order.result.total_eyelets)
 
-        order.result.salary_printer = settings_id.printer_rate_m2 * order.result.total_print_area
+        # Расходы на укрепления
+        order.result.expenses_reinforcements = round_custom(
+            settings_id.reinforcement_price * order.result.total_reinforcements) if order.reinforcement == "да" else False
 
-        order.result.salary_eyelet_worker = settings_id.eyelet_rate * order.result.total_eyelets
+        # Заработки
+        order.result.salary_printer = round_custom(
+            settings_id.printer_rate_m2 * order.result.total_print_area)
+        order.result.salary_eyelet_worker = round_custom(
+            settings_id.eyelet_rate * order.result.total_eyelets)
+        order.result.salary_cutter = round_custom(
+            settings_id.cutter_rate_m2 * order.result.total_eyelets) if order.material == "Блюбэк" else False
+        order.result.salary_welder = round_custom(
+            settings_id.payer_rate * order.result.total_spikes) if order.result.total_eyelets is not False else False
 
-        if order.material == "Блюбэк":
-            order.result.salary_cutter = settings_id.cutter_rate_m2 * order.result.total_eyelets
-        else:
-            order.result.salary_cutter = False
+        # Общие расходы
+        order.result.total_expenses = sum(filter(None, [
+            order.result.expenses_canvas,
+            order.result.expenses_prints,
+            order.result.expenses_eyelets,
+            order.result.expenses_reinforcements,
+            order.result.salary_printer,
+            order.result.salary_eyelet_worker,
+            order.result.salary_cutter,
+            order.result.salary_welder
+        ]))
 
-        if order.result.total_eyelets is not False:
-            order.result.salary_welder = settings_id.payer_rate * order.result.total_spikes
-        else:
-            order.result.salary_welder = False
-
-        order.result.total_expenses = order.result.expenses_canvas + order.result.expenses_prints + order.result.expenses_eyelets + order.result.expenses_reinforcements + order.result.salary_printer + order.result.salary_eyelet_worker + order.result.salary_cutter + order.result.salary_welder
-        order.result.tax = 0.05 * order.total_amount
-        order.result.margin = order.total_amount - order.result.tax - order.result.total_expenses
+        # Налоги и маржа
+        order.result.tax = round_custom(0.05 * order.total_amount)
+        order.result.margin = round_custom(
+            order.total_amount - order.result.tax - order.result.total_expenses)
 
         # Сохраняем изменения
         db.commit()
