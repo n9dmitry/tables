@@ -300,7 +300,7 @@ async def update_order(
 
         # Расходы на укрепления
         order.result.expenses_reinforcements = round_custom(
-            settings_id.reinforcement_price * order.result.total_reinforcements) if order.reinforcement == "да" else False
+            settings_id.reinforcement * order.result.total_reinforcements) if order.reinforcement == "да" else False
 
         # Заработки
         order.result.salary_printer = round_custom(
