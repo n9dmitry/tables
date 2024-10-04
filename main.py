@@ -393,9 +393,10 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
         db.add(default_settings)
         db.commit()
 
-        # Обновляем список настроек
-    actual_settings = settings[0]
+    settings = db.query(Settings).order_by(Settings.id.desc()).all()
 
+        # Обновляем список настроек
+    actual_settings = settings[0] if settings else None
     # Передаем настройки в шаблон
     return templates.TemplateResponse("settings.html",
                                       {"request": request,
