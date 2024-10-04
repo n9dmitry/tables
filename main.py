@@ -143,6 +143,19 @@ def results_page(request: Request, db: Session = Depends(get_db), current_user: 
                                                        "user": current_user,
                                                        "role": current_user.role.value, })
 
+@app.get("/summary", response_class=HTMLResponse)
+def results_page(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    check_role_access(current_user, {Role.superuser, Role.admin})
+    results = db.query(Result).order_by(Result.order_id.desc()).all()
+
+    return templates.TemplateResponse("summary.html", {"request": request,
+                                                       "results": results,
+                                                       "user": current_user,
+                                                       "role": current_user.role.value, })
+
+
+
+
 
 @app.post("/orders")
 async def create_order(
@@ -298,9 +311,9 @@ async def update_order(
             settings_id.paint_price_liter * order.result.total_paints)
         order.result.expenses_eyelets = round_custom(settings_id.eyelet_price * order.result.total_eyelets)
 
-        # Расходы на укрепления
+        # Расходы на уСИЛЕНИЯ
         order.result.expenses_reinforcements = round_custom(
-            settings_id.reinforcement_price * order.result.total_reinforcements) if order.reinforcement == "да" else False
+            settings_id.settings_id.banner_molded_price_m2 * order.result.total_reinforcements) if order.reinforcement == "да" else False
 
         # Заработки
         order.result.salary_printer = round_custom(
