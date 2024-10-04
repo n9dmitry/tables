@@ -92,10 +92,10 @@ class Settings(Base):
     banner_laminated_price_m2 = Column(Float)  # Цена м² баннера ламинат 440г
     mesh_price_m2 = Column(Float)  # Цена м² сетки
 
-    blueback_price_roll = Column(Float)  # Стоимость рулона блюбэка
-    banner_molded_price_roll = Column(Float)  # Стоимость рулона баннера литого 450г
-    banner_laminated_price_roll = Column(Float)  # Стоимость рулона баннера ламинат 440г
-    mesh_price_roll = Column(Float)  # Стоимость рулона сетки
+    # blueback_price_roll = Column(Float)  # Стоимость рулона блюбэка
+    # banner_molded_price_roll = Column(Float)  # Стоимость рулона баннера литого 450г
+    # banner_laminated_price_roll = Column(Float)  # Стоимость рулона баннера ламинат 440г
+    # mesh_price_roll = Column(Float)  # Стоимость рулона сетки
 
     eyelet_step = Column(Float)  # Шаг люверса (м)
     eyelet_price = Column(Float)  # Цена люверсач

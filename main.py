@@ -7,10 +7,8 @@ from admin import router as admin_router
 from contextlib import asynccontextmanager
 from datetime import datetime
 from fastapi.staticfiles import StaticFiles
-from functools import wraps
 from settings import settings_router
 from datetime import date
-from decimal import Decimal
 
 
 templates = Jinja2Templates(directory="templates")
@@ -365,10 +363,10 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
             banner_molded_price_m2=141.63,
             banner_laminated_price_m2=86.91,
             mesh_price_m2=108.91,
-            blueback_price_roll=21900,
-            banner_molded_price_roll=22660,
-            banner_laminated_price_roll=13905,
-            mesh_price_roll=17425,
+            # blueback_price_roll=21900,
+            # banner_molded_price_roll=22660,
+            # banner_laminated_price_roll=13905,
+            # mesh_price_roll=17425,
             eyelet_step=0.28,
             eyelet_price=1.39,
             paint_price_liter=950,
@@ -404,10 +402,10 @@ async def create_settings(request: Request, db: Session = Depends(get_db)):
     banner_molded_price_m2 = form_data.get('banner_molded_price_m2')
     banner_laminated_price_m2 = form_data.get('banner_laminated_price_m2')
     mesh_price_m2 = form_data.get('mesh_price_m2')
-    blueback_price_roll = form_data.get('blueback_price_roll')
-    banner_molded_price_roll = form_data.get('banner_molded_price_roll')
-    banner_laminated_price_roll = form_data.get('banner_laminated_price_roll')
-    mesh_price_roll = form_data.get('mesh_price_roll')
+    # blueback_price_roll = form_data.get('blueback_price_roll')
+    # banner_molded_price_roll = form_data.get('banner_molded_price_roll')
+    # banner_laminated_price_roll = form_data.get('banner_laminated_price_roll')
+    # mesh_price_roll = form_data.get('mesh_price_roll')
     eyelet_step = form_data.get('eyelet_step')
     eyelet_price = form_data.get('eyelet_price')
     paint_price_liter = form_data.get('paint_price_liter')
@@ -425,10 +423,10 @@ async def create_settings(request: Request, db: Session = Depends(get_db)):
         banner_molded_price_m2=float(banner_molded_price_m2),
         banner_laminated_price_m2=float(banner_laminated_price_m2),
         mesh_price_m2=float(mesh_price_m2),
-        blueback_price_roll=float(blueback_price_roll),
-        banner_molded_price_roll=float(banner_molded_price_roll),
-        banner_laminated_price_roll=float(banner_laminated_price_roll),
-        mesh_price_roll=float(mesh_price_roll),
+        # blueback_price_roll=float(blueback_price_roll),
+        # banner_molded_price_roll=float(banner_molded_price_roll),
+        # banner_laminated_price_roll=float(banner_laminated_price_roll),
+        # mesh_price_roll=float(mesh_price_roll),
         eyelet_step=float(eyelet_step),
         eyelet_price=float(eyelet_price),
         paint_price_liter=float(paint_price_liter),
