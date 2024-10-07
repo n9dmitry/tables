@@ -235,15 +235,28 @@ async def update_order(
     order = db.query(Order).filter(Order.id == order_id).first()
     # last_setting = db.query(Settings).order_by(Settings.id.desc()).first()
     # if last_setting is not None:
-    #     settings_id = db.query(Settings).filter(Settings.id == last_setting.id - 1).first()
+    #     settings_el = db.query(Settings).filter(Settings.id == last_setting.id - 1).first()
     # else:
-    #     settings_id = None
+    #     settings_el = None
     # print(last_setting.id)
-    # print(settings_id)
+    # print(settings_el)
 
 
-    settings = db.query(Settings).order_by(Settings.id.desc()).all()
-    settings_id = settings[0]
+    # settings = db.query(Settings).order_by(Settings.id.desc()).all()
+
+
+    if order is not None:
+        order_date = order.date
+
+        # Ищем настройки, которые были обновлены до даты заказа
+        settings_el = (
+            db.query(Settings)
+            .filter(Settings.updated_at <= order_date)
+            .order_by(Settings.updated_at.desc())
+            .first()  # Берем только первый найденный элемент
+        )
+    else:
+        settings_el = None
 
     if not order:
         message = "Заказ не найден."
@@ -272,12 +285,12 @@ async def update_order(
 
         # Общее количество красок
         order.result.total_paints = round_custom(
-            settings_id.paint_consumption_m2 * order.result.total_print_area)
+            settings_el.paint_consumption_m2 * order.result.total_print_area)
 
         # Люверсы
         if order.eyelets.lower() == "да":
             order.result.total_eyelets = round_custom(
-                ((order.print_width + order.print_height) * 2 / settings_id.eyelet_step + 4) * order.quantity)
+                ((order.print_width + order.print_height) * 2 / settings_el.eyelet_step + 4) * order.quantity)
         else:
             order.result.total_eyelets = False
 
@@ -298,32 +311,32 @@ async def update_order(
 
         # Расходы на.canvas
         canvas_prices = {
-            "Блюбэк": settings_id.blueback_price_m2,
-            "Баннер литой 450гм": settings_id.banner_molded_price_m2,
-            "Баннер ламинат 440гм": settings_id.banner_laminated_price_m2,
-            "Сетка": settings_id.mesh_price_m2
+            "Блюбэк": settings_el.blueback_price_m2,
+            "Баннер литой 450гм": settings_el.banner_molded_price_m2,
+            "Баннер ламинат 440гм": settings_el.banner_laminated_price_m2,
+            "Сетка": settings_el.mesh_price_m2
         }
         order.result.expenses_canvas = round_custom(
             canvas_prices.get(order.material, False) * order.result.total_canvas_area)
 
         # Расходы краски и люверсы
         order.result.expenses_prints = round_custom(
-            settings_id.paint_price_liter * order.result.total_paints)
-        order.result.expenses_eyelets = round_custom(settings_id.eyelet_price * order.result.total_eyelets)
+            settings_el.paint_price_liter * order.result.total_paints)
+        order.result.expenses_eyelets = round_custom(settings_el.eyelet_price * order.result.total_eyelets)
 
         # Расходы на уСИЛЕНИЯ
         order.result.expenses_reinforcements = round_custom(
-            settings_id.settings_id.banner_molded_price_m2 * order.result.total_reinforcements) if order.reinforcement == "да" else False
+            settings_el.banner_molded_price_m2 * order.result.total_reinforcements) if order.reinforcement == "да" else False
 
         # Заработки
         order.result.salary_printer = round_custom(
-            settings_id.printer_rate_m2 * order.result.total_print_area)
+            settings_el.printer_rate_m2 * order.result.total_print_area)
         order.result.salary_eyelet_worker = round_custom(
-            settings_id.eyelet_rate * order.result.total_eyelets)
+            settings_el.eyelet_rate * order.result.total_eyelets)
         order.result.salary_cutter = round_custom(
-            settings_id.cutter_rate_m2 * order.result.total_eyelets) if order.material == "Блюбэк" else False
+            settings_el.cutter_rate_m2 * order.result.total_eyelets) if order.material == "Блюбэк" else False
         order.result.salary_welder = round_custom(
-            settings_id.payer_rate * order.result.total_spikes) if order.result.total_eyelets is not False else False
+            settings_el.payer_rate * order.result.total_spikes) if order.result.total_eyelets is not False else False
 
         # Общие расходы
         order.result.total_expenses = sum(filter(None, [
@@ -365,18 +378,21 @@ async def update_order(
 async def read_settings(request: Request, current_user: User = Depends(get_current_user),
                         db: Session = Depends(get_db)):
     check_role_access(current_user, {Role.superuser, Role.admin})
-
-    # Получение настроек из БД
+    # Проверяем, есть ли настройки в базе данных
     settings = db.query(Settings).order_by(Settings.id.desc()).all()
 
-    # Если настроек нет, создаем их с текущей датой
     if not settings:
+        # Создаем экземпляр настроек с предопределенными значениями
         default_settings = Settings(
             updated_at=date.today(),  # Используем текущую дату
             blueback_price_m2=46.20,
             banner_molded_price_m2=141.63,
             banner_laminated_price_m2=86.91,
             mesh_price_m2=108.91,
+            # blueback_price_roll=21900,
+            # banner_molded_price_roll=22660,
+            # banner_laminated_price_roll=13905,
+            # mesh_price_roll=17425,
             eyelet_step=0.28,
             eyelet_price=1.39,
             paint_price_liter=950,
@@ -390,20 +406,18 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
         db.add(default_settings)
         db.commit()
 
+    settings = db.query(Settings).order_by(Settings.id.desc()).all()
 
-        # Обновляем список настроек после добавления
-        settings = db.query(Settings).order_by(Settings.id.desc()).all()
-
-    # Проверяем, что теперь настройки есть
-    actual_settings = settings[0] if settings else None  # Обработка случая, если настройки все еще отсутствуют
-
-    return templates.TemplateResponse("settings.html", {
-        "request": request,
-        "user": current_user,
-        "role": current_user.role.value,
-        "settings": settings,
-        "actual_settings": actual_settings
-    })
+        # Обновляем список настроек
+    actual_settings = settings[0] if settings else None
+    # Передаем настройки в шаблон
+    return templates.TemplateResponse("settings.html",
+                                      {"request": request,
+                                       "user": current_user,
+                                       "role": current_user.role.value,
+                                       "settings": settings,
+                                       "actual_settings": actual_settings
+                                       })
 
 
 @app.post('/create_settings')

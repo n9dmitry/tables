@@ -3,76 +3,130 @@
 {% block title %}Главная страница{% endblock %}
 {% block summary %}
 
-<div class="content">
-    <h1>Сводные данные</h1>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сводные таблицы</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center">Сводные таблицы</h1>
 
-    <table class="table table-bordered mt-4">
-        <thead class="thead-light">
-        <tr>
-            <th>№</th>
-            <th>№ задачи</th>
-            <th>Дата</th>
-            <th>Материал</th>
-            <th>Печать (кв.м)</th>
-            <th>Полотно (кв.м)</th>
-            <th>Краски (л)</th>
-            <th>Люверсов (шт)</th>
-            <th>Спайки</th>
-            <th>Усиления (кв.м)</th>
-            <th>Полотна</th>
-            <th>Краски</th>
-            <th>Люверсы</th>
-            <th>Усиления</th>
-            <th>ЗП печатнику</th>
-            <th>ЗП люверсам</th>
-            <th>ЗП резчику</th>
-            <th>ЗП пайщик.</th>
-            <th>Сумма затрат</th>
-            <th>Сумма продажи</th>
-            <th>Налог (5%)</th>
-            <th>Маржа</th>
-            <th>Печатник</th>
-        </tr>
-        </thead>
-        {% if results %}
+    <!-- Tab navigation -->
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="materials-tab" data-toggle="tab" href="#materials" role="tab">Материалы</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="managers-tab" data-toggle="tab" href="#managers" role="tab">Менеджеры</a>
+        </li>
+    </ul>
 
-        <tbody>
-        {% for result in results %}
-        <tr>
-            <td>{{ result.order.id }}</td>
-            <td>{{ result.order.task_number }}</td>
-            <td>{{ result.order.date.strftime("%d.%m.%Y") }}</td>
-            <td>{{ result.order.material }}</td>
-            <td>{{ result.total_print_area }}</td>
-            <td>{{ result.total_canvas_area }}</td>
-            <td>{{ result.total_paints }}</td>
-            <td>{{ result.total_eyelets }}</td>
-            <td>{{ result.total_spikes }}</td>
-            <td>{{ result.total_reinforcements }}</td>
-            <td>{{ result.expenses_canvas }}</td>
-            <td>{{ result.expenses_prints }}</td>
-            <td>{{ result.expenses_eyelets }}</td>
-            <td>{{ result.expenses_reinforcements }}</td>
-            <td>{{ result.salary_printer }}</td>
-            <td>{{ result.salary_eyelet_worker }}</td>
-            <td>{{ result.salary_cutter }}</td>
-            <td>{{ result.salary_welder }}</td>
-            <td>{{ result.total_expenses }}</td>
-            <td>{{ result.order.total_amount }}</td>
-            <td>{{ result.tax }}</td>
-            <td>{{ result.margin }}</td>
-            <td>{{ result.order.performer }}</td>
+    <div class="tab-content mt-3">
+        <!-- Materials Table -->
+        <div class="tab-pane fade show active" id="materials" role="tabpanel">
+            <div class="form-group">
+                <label for="dateFilter">Фильтр по дате:</label>
+                <input type="date" class="form-control" id="startDate">
+                <input type="date" class="form-control mt-2" id="endDate">
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Материал</th>
+                        <th>Расход</th>
+                        <th>Стоимость</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2024-10-01</td>
+                        <td>Бетон</td>
+                        <td>
+                            50 <span>м<sup>2</sup></span>
+                            <br>
+                            10 <span>шт</span>
+                            <br>
+                            100 <span>л</span>
+                        </td>
+                        <td>5000₽</td>
+                    </tr>
+                    <tr>
+                        <td>2024-10-02</td>
+                        <td>Цемент</td>
+                        <td>
+                            30 <span>м<sup>2</sup></span>
+                            <br>
+                            5 <span>шт</span>
+                            <br>
+                            20 <span>л</span>
+                        </td>
+                        <td>3000₽</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2">Итого:</td>
+                        <td>80 м², 15 шт, 120 л</td>
+                        <td>8000₽</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
 
-
-        </tr>
-        {% endfor %}
-        </tbody>
-        {% else %}
-        <tr>
-            <td colspan="14">Нет доступных заказов</td>
-        </tr>
-        {% endif %}
-    </table>
+        <!-- Managers Table -->
+        <div class="tab-pane fade" id="managers" role="tabpanel">
+            <div class="form-group">
+                <label for="managerFilter">Фильтр по менеджеру:</label>
+                <select class="form-control" id="managerFilter">
+                    <option>Все</option>
+                    <option>Менеджер 1</option>
+                    <option>Менеджер 2</option>
+                </select>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Менеджер</th>
+                        <th>Печати м²</th>
+                        <th>ЗП</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2024-10-01</td>
+                        <td>Менеджер 1</td>
+                        <td>100 м²</td>
+                        <td>20000₽</td>
+                    </tr>
+                    <tr>
+                        <td>2024-10-02</td>
+                        <td>Менеджер 2</td>
+                        <td>150 м²</td>
+                        <td>30000₽</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2">Итого:</td>
+                        <td>250 м²</td>
+                        <td>50000₽</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 </div>
+</body>
+
 
 {% endblock %}
