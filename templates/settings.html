@@ -19,7 +19,13 @@
         <tbody>
         <tr>
             <td>Обновление</td>
-            <td>{{ actual_settings.updated_at.strftime("%d.%m.%Y") }}</td>
+            <td>
+    {% if actual_settings.updated_at %}
+        {{ actual_settings.updated_at.strftime("%d.%m.%Y") }}
+    {% else %}
+        Нет данных
+    {% endif %}
+</td>
         </tr>
         <tr>
             <td>Цена м² блюбэка</td>

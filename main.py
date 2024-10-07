@@ -365,21 +365,18 @@ async def update_order(
 async def read_settings(request: Request, current_user: User = Depends(get_current_user),
                         db: Session = Depends(get_db)):
     check_role_access(current_user, {Role.superuser, Role.admin})
-    # Проверяем, есть ли настройки в базе данных
+
+    # Получение настроек из БД
     settings = db.query(Settings).order_by(Settings.id.desc()).all()
 
+    # Если настроек нет, создаем их с текущей датой
     if not settings:
-        # Создаем экземпляр настроек с предопределенными значениями
         default_settings = Settings(
             updated_at=date.today(),  # Используем текущую дату
             blueback_price_m2=46.20,
             banner_molded_price_m2=141.63,
             banner_laminated_price_m2=86.91,
             mesh_price_m2=108.91,
-            # blueback_price_roll=21900,
-            # banner_molded_price_roll=22660,
-            # banner_laminated_price_roll=13905,
-            # mesh_price_roll=17425,
             eyelet_step=0.28,
             eyelet_price=1.39,
             paint_price_liter=950,
@@ -393,17 +390,20 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
         db.add(default_settings)
         db.commit()
 
-        # Обновляем список настроек
-    actual_settings = settings[0]
 
-    # Передаем настройки в шаблон
-    return templates.TemplateResponse("settings.html",
-                                      {"request": request,
-                                       "user": current_user,
-                                       "role": current_user.role.value,
-                                       "settings": settings,
-                                       "actual_settings": actual_settings
-                                       })
+        # Обновляем список настроек после добавления
+        settings = db.query(Settings).order_by(Settings.id.desc()).all()
+
+    # Проверяем, что теперь настройки есть
+    actual_settings = settings[0] if settings else None  # Обработка случая, если настройки все еще отсутствуют
+
+    return templates.TemplateResponse("settings.html", {
+        "request": request,
+        "user": current_user,
+        "role": current_user.role.value,
+        "settings": settings,
+        "actual_settings": actual_settings
+    })
 
 
 @app.post('/create_settings')
