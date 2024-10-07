@@ -1,132 +1,119 @@
 {% extends "layout.html" %}
 
-{% block title %}Главная страница{% endblock %}
+{% block title %}Сводная таблица{% endblock %}
+
 {% block summary %}
+<div class="container mt-4">
+    <h1>Сводная - Материалы</h1>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сводные таблицы</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <style>
-        .hidden { display: none; }
-    </style>
-</head>
-<body>
-<div class="container mt-5">
-    <h1 class="text-center">Сводные таблицы</h1>
-
-    <!-- Tab navigation -->
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="materials-tab" data-toggle="tab" href="#materials" role="tab">Материалы</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="managers-tab" data-toggle="tab" href="#managers" role="tab">Менеджеры</a>
-        </li>
-    </ul>
-
-    <div class="tab-content mt-3">
-        <!-- Materials Table -->
-        <div class="tab-pane fade show active" id="materials" role="tabpanel">
-            <div class="form-group">
-                <label for="dateFilter">Фильтр по дате:</label>
-                <input type="date" class="form-control" id="startDate">
-                <input type="date" class="form-control mt-2" id="endDate">
-            </div>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Дата</th>
-                        <th>Материал</th>
-                        <th>Расход</th>
-                        <th>Стоимость</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2024-10-01</td>
-                        <td>Бетон</td>
-                        <td>
-                            50 <span>м<sup>2</sup></span>
-                            <br>
-                            10 <span>шт</span>
-                            <br>
-                            100 <span>л</span>
-                        </td>
-                        <td>5000₽</td>
-                    </tr>
-                    <tr>
-                        <td>2024-10-02</td>
-                        <td>Цемент</td>
-                        <td>
-                            30 <span>м<sup>2</sup></span>
-                            <br>
-                            5 <span>шт</span>
-                            <br>
-                            20 <span>л</span>
-                        </td>
-                        <td>3000₽</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="2">Итого:</td>
-                        <td>80 м², 15 шт, 120 л</td>
-                        <td>8000₽</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-
-        <!-- Managers Table -->
-        <div class="tab-pane fade" id="managers" role="tabpanel">
-            <div class="form-group">
-                <label for="managerFilter">Фильтр по менеджеру:</label>
-                <select class="form-control" id="managerFilter">
-                    <option>Все</option>
-                    <option>Менеджер 1</option>
-                    <option>Менеджер 2</option>
-                </select>
-            </div>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Дата</th>
-                        <th>Менеджер</th>
-                        <th>Печати м²</th>
-                        <th>ЗП</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2024-10-01</td>
-                        <td>Менеджер 1</td>
-                        <td>100 м²</td>
-                        <td>20000₽</td>
-                    </tr>
-                    <tr>
-                        <td>2024-10-02</td>
-                        <td>Менеджер 2</td>
-                        <td>150 м²</td>
-                        <td>30000₽</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="2">Итого:</td>
-                        <td>250 м²</td>
-                        <td>50000₽</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+    <!-- Фильтры для материалов -->
+    <div class="form-group">
+        <label for="startDateMaterial">Начальная дата:</label>
+        <input type="date" id="startDateMaterial" class="form-control">
     </div>
+    <div class="form-group">
+        <label for="endDateMaterial">Конечная дата:</label>
+        <input type="date" id="endDateMaterial" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="materialFilter">Выберите материал:</label>
+        <select id="materialFilter" class="form-control">
+            <option>Все</option>
+            <option>Доска</option>
+            <option>Бетон</option>
+            <option>Песок</option>
+        </select>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th rowspan="2">Дата</th>
+            <th rowspan="2">Материал</th>
+            <th colspan="3" class="text-center">Расход</th>
+            <th rowspan="2">Стоимость</th>
+        </tr>
+        <tr>
+            <th>м²</th>
+            <th>л</th>
+            <th>шт</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
+            <td>{{ order.material }}</td>
+            <td>{{ order.result.total_canvas_area }}</td>
+            <td>{{ order.result.total_paints }}</td>
+            <td>{{ order.result.total_eyelets }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td><strong>Итого:</strong> C Начальная дата по Конечная дата</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+
+        </tr>
+        </tfoot>
+    </table>
+
+    <h1>Сводная - Менеджеры</h1>
+
+    <!-- Фильтры для менеджеров -->
+    <div class="form-group">
+        <label for="startDateManager">Начальная дата:</label>
+        <input type="date" id="startDateManager" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="endDateManager">Конечная дата:</label>
+        <input type="date" id="endDateManager" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="managerFilter">Выберите менеджера:</label>
+        <select id="managerFilter" class="form-control">
+            <option>Все</option>
+            <option>Артем</option>
+            <option>Константин</option>
+        </select>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Менеджер</th>
+            <th>Печати м²</th>
+            <th>ЗП</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
+            <td>{{ order.performer }}</td>
+            <td>{{ order.total_print_area }}</td>
+            <td>{{ order.total_print_area }} * {{ settings.printer_rate_m2 }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4">Данные отсутствуют</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td><strong>Итого:</strong> C Начальная дата по Конечная дата</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </tfoot>
+    </table>
 </div>
-</body>
-
-
 {% endblock %}

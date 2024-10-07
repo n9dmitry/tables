@@ -147,9 +147,25 @@ def results_page(request: Request, db: Session = Depends(get_db), current_user: 
 def results_page(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     check_role_access(current_user, {Role.superuser, Role.admin})
     results = db.query(Result).order_by(Result.order_id.desc()).all()
+    orders = db.query(Order).order_by(Order.id.desc()).all()
+    order = db.query(Order).filter(Order.id == order_id).first()
+
+    if order is not None:
+        order_date = order.date
+
+        # Ищем настройки, которые были обновлены до даты заказа
+        settings_el = (
+            db.query(Settings)
+            .filter(Settings.updated_at <= order_date)
+            .order_by(Settings.updated_at.desc())
+            .first()  # Берем только первый найденный элемент
+        )
+    else:
+        settings_el = None
 
     return templates.TemplateResponse("summary.html", {"request": request,
                                                        "results": results,
+                                                       "orders": orders,
                                                        "user": current_user,
                                                        "role": current_user.role.value, })
 
