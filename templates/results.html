@@ -6,7 +6,39 @@
 <div class="content">
     <h1>Результаты</h1>
 
-    <table class="table table-bordered mt-4">
+    <!-- Поле поиска по номеру задания -->
+    <div class="form-group mt-3">
+        <label for="search_task">Поиск по номеру задания</label>
+        <input type="text" class="form-control" id="search_task" oninput="applyFilters()" placeholder="Введите номер задания...">
+    </div>
+
+    <!-- Фильтры -->
+    <div class="row mt-3">
+        <div class="col-md-4 form-group">
+            <label for="filter_material">Материал</label>
+            <select class="form-control" id="filter_material" onchange="applyFilters()">
+                <option value="">Все</option>
+                <option value="Блюбэк">Блюбэк</option>
+                <option value="Баннер литой 450гм">Баннер литой 450гм</option>
+                <option value="Баннер ламинат 440гм">Баннер ламинат 440гм</option>
+                <option value="Сетка">Сетка</option>
+            </select>
+        </div>
+        <div class="col-md-4 form-group">
+            <label for="filter_printer">Исполнитель</label>
+            <select class="form-control" id="filter_printer" onchange="applyFilters()">
+                <option value="">Все</option>
+                <option value="Константин">Константин</option>
+                <option value="Артём">Артём</option>
+            </select>
+        </div>
+        <div class="col-md-4 form-group">
+            <label for="filter_date">Дата</label>
+            <input type="date" class="form-control" id="filter_date" onchange="applyFilters()">
+        </div>
+    </div>
+
+    <table class="table table-bordered mt-4" id="results_table">
         <thead class="thead-light">
         <tr>
             <th>№</th>
@@ -35,10 +67,9 @@
         </tr>
         </thead>
         {% if results %}
-
         <tbody>
         {% for result in results %}
-        <tr>
+        <tr class="result-row" data-task-number="{{ result.order.task_number }}" data-material="{{ result.order.material }}" data-printer="{{ result.order.performer }}" data-date="{{ result.order.date.strftime('%Y-%m-%d') }}">
             <td>{{ result.order.id }}</td>
             <td>{{ result.order.task_number }}</td>
             <td>{{ result.order.date.strftime("%d.%m.%Y") }}</td>
@@ -62,16 +93,43 @@
             <td>{{ result.tax }}</td>
             <td>{{ result.margin }}</td>
             <td>{{ result.order.performer }}</td>
-
-
         </tr>
         {% endfor %}
         </tbody>
         {% else %}
         <tr>
-            <td colspan="14">Нет доступных заказов</td>
+            <td colspan="22">Нет доступных результатов</td>
         </tr>
         {% endif %}
     </table>
 </div>
+
+<script>
+function applyFilters() {
+    const searchValue = document.getElementById("search_task").value.toLowerCase();
+    const materialFilter = document.getElementById("filter_material").value;
+    const printerFilter = document.getElementById("filter_printer").value.toLowerCase();
+    const dateFilter = document.getElementById("filter_date").value;
+
+    const rows = document.querySelectorAll(".result-row");
+    rows.forEach(row => {
+        const taskNumber = row.dataset.taskNumber.toString();
+        const material = row.dataset.material;
+        const printer = row.dataset.printer.toLowerCase();
+        const date = row.dataset.date;
+
+        const matchTaskNumber = taskNumber.includes(searchValue);
+        const matchMaterial = materialFilter ? material === materialFilter : true;
+        const matchPrinter = printer.includes(printerFilter);
+        const matchDate = dateFilter ? date === dateFilter : true;
+
+        if (matchTaskNumber && matchMaterial && matchPrinter && matchDate) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+</script>
+
 {% endblock %}

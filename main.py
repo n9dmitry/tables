@@ -220,6 +220,65 @@ async def create_order(
         "role": current_user.role.value,
     })
 
+@app.post("/orders/{order_id}")
+async def update_orders(
+        order_id: int,
+        request: Request,
+        current_user: User = Depends(get_current_user),
+        task_number: int = Form(...),
+        date: str = Form(...),
+        subject: str = Form(...),
+        material: str = Form(...),
+        quantity: int = Form(...),
+        performer: str = Form(...),
+        print_width: float = Form(...),
+        print_height: float = Form(...),
+        canvas_width: float = Form(...),
+        canvas_length: float = Form(...),
+        eyelets: str = Form(...),
+        spike: str = Form(...),
+        reinforcement: str = Form(...),
+        db: Session = Depends(get_db),
+):
+    check_role_access(current_user, {Role.printer, Role.superuser, Role.admin})
+
+    date_object = datetime.strptime(date, '%Y-%m-%d').date()
+    existing_order = db.query(Order).filter(Order.id == order_id).first()
+
+    if not existing_order:
+        message = "Заказ не найден."
+        message_type = "danger"
+    else:
+        existing_order.task_number = task_number
+        existing_order.date = date_object
+        existing_order.subject = subject
+        existing_order.material = material
+        existing_order.quantity = quantity
+        existing_order.performer = performer
+        existing_order.print_width = print_width
+        existing_order.print_height = print_height
+        existing_order.canvas_width = canvas_width
+        existing_order.canvas_length = canvas_length
+        existing_order.eyelets = eyelets
+        existing_order.spike = spike
+        existing_order.reinforcement = reinforcement
+
+        db.commit()
+
+        message = "Заказ успешно обновлён!"
+        message_type = "success"
+
+    # Показать шаблон с сообщением
+    orders = db.query(Order).order_by(Order.id.desc()).all()
+    return templates.TemplateResponse("printer.html", {
+        "request": request,
+        "orders": orders,
+        "message": message,
+        "message_type": message_type,
+        "user": current_user,
+        "role": current_user.role.value,
+    })
+
 
 @app.post("/orders/update")
 async def update_order(
