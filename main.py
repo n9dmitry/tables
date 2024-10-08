@@ -10,7 +10,6 @@ from fastapi.staticfiles import StaticFiles
 from settings import settings_router
 from datetime import date
 
-
 templates = Jinja2Templates(directory="templates")
 
 
@@ -163,7 +162,7 @@ def summary_page(
     results = db.query(Result).order_by(Result.order_id.desc()).all()
     settings = db.query(Settings).order_by(Settings.id.desc()).all()
 
-    actual_settings = settings[0]
+    actual_settings = settings[0] if settings else None
     # Получение настроек (если нужно)
     settings_el = (
         db.query(Settings)
@@ -328,9 +327,7 @@ async def update_order(
     # print(last_setting.id)
     # print(settings_el)
 
-
     # settings = db.query(Settings).order_by(Settings.id.desc()).all()
-
 
     if order is not None:
         order_date = order.date
@@ -497,7 +494,7 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
 
     settings = db.query(Settings).order_by(Settings.id.desc()).all()
 
-        # Обновляем список настроек
+    # Обновляем список настроек
     actual_settings = settings[0] if settings else None
     # Передаем настройки в шаблон
     return templates.TemplateResponse("settings.html",

@@ -15,14 +15,16 @@
     <!-- Поле поиска по номеру заказа -->
     <div class="form-group mt-3">
         <label for="search_order">Поиск по номеру заказа</label>
-        <input type="text" class="form-control" id="search_order" oninput="applyFilters()" placeholder="Введите номер заказа...">
+        <input type="text" class="form-control" id="search_order" oninput="applyFilters()"
+               placeholder="Введите номер заказа...">
     </div>
 
     <!-- Фильтры -->
     <div class="row mt-3">
         <div class="col-md-4 form-group">
             <label for="filter_customer">Заказчик</label>
-            <input type="text" class="form-control" id="filter_customer" oninput="applyFilters()" placeholder="Введите имя заказчика...">
+            <input type="text" class="form-control" id="filter_customer" oninput="applyFilters()"
+                   placeholder="Введите имя заказчика...">
         </div>
         <div class="col-md-4 form-group">
             <label for="filter_date">Дата</label>
@@ -42,28 +44,29 @@
 
     <table class="table table-bordered mt-4" id="orders_table">
         <thead class="thead-light">
-            <tr>
-                <th>№ п/п (ID заказа)</th>
-                <th>№ задачи</th>
-                <th>Дата</th>
-                <th>Сюжет</th>
-                <th>Материал</th>
-                <th>Ширина</th>
-                <th>Высота</th>
-                <th>Люверсы</th>
-                <th>Спайка</th>
-                <th>Усиление</th>
-                <th>Кол-во</th>
-                <th>Заказчик</th>
-                <th>Цена за ед</th>
-                <th>Сумма</th>
-                <th>Действия</th>
-            </tr>
+        <tr>
+            <th>№ п/п (ID заказа)</th>
+            <th>№ задачи</th>
+            <th>Дата</th>
+            <th>Сюжет</th>
+            <th>Материал</th>
+            <th>Ширина</th>
+            <th>Высота</th>
+            <th>Люверсы</th>
+            <th>Спайка</th>
+            <th>Усиление</th>
+            <th>Кол-во</th>
+            <th>Заказчик</th>
+            <th>Цена за ед</th>
+            <th>Сумма</th>
+            <th>Действия</th>
+        </tr>
         </thead>
         {% if orders %}
         <tbody>
         {% for order in orders %}
-        <tr class="order-row" data-task-number="{{ order.id }}" data-customer="{{ order.customer }}" data-date="{{ order.date.strftime('%Y-%m-%d') }}" data-material="{{ order.material }}">
+        <tr class="order-row" data-task-number="{{ order.id }}" data-customer="{{ order.customer }}"
+            data-date="{{ order.date.strftime('%Y-%m-%d') }}" data-material="{{ order.material }}">
             <td>{{ order.id }}</td>
             <td>{{ order.task_number }}</td>
             <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
@@ -79,33 +82,9 @@
             <td>{{ order.price_per_unit }}</td>
             <td>{{ order.total_amount }}</td>
             <td>
-                <button class="btn btn-warning" data-toggle="modal" data-target="#orderModal{{ order.id }}" data-customer="{{ order.customer }}" data-price="{{ order.price_per_unit }}">Редактировать</button>
-                <div class="modal fade" id="orderModal{{ order.id }}" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content" style="border: 2px solid #007bff; border-radius: 15px; padding: 20px;">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Изменить заказ #{{ order.id }}</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="/orders/update" method="POST">
-                                    <input type="hidden" name="order_id" value="{{ order.id }}">
-                                    <div class="form-group">
-                                        <label for="customer">Заказчик</label>
-                                        <input type="text" class="form-control" name="customer" id="customer" value="{{ order.customer }}" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="price_per_unit">Цена за ед.</label>
-                                        <input type="number" class="form-control" name="price_per_unit" id="price_per_unit" value="{{ order.price_per_unit }}" step="1" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Обновить заказ</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <button class="btn btn-warning" data-toggle="modal" data-target="#orderModal{{ order.id }}"
+                        data-customer="{{ order.customer }}" data-price="{{ order.price_per_unit }}">Редактировать
+                </button>
             </td>
         </tr>
         {% endfor %}
@@ -117,6 +96,39 @@
         {% endif %}
     </table>
 </div>
+
+{% for order in orders %}
+<div class="modal fade" id="orderModal{{ order.id }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="border: 2px solid #007bff; border-radius: 15px; padding: 20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">Изменить заказ #{{ order.id }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/orders/update" method="POST">
+                    <input type="hidden" name="order_id" value="{{ order.id }}">
+                    <div class="form-group">
+                        <label for="customer">Заказчик</label>
+                        <input type="text" class="form-control" name="customer" id="customer"
+                               value="{{ order.customer }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price_per_unit">Цена за ед.</label>
+                        <input type="number" class="form-control" name="price_per_unit" id="price_per_unit"
+                               value="{{ order.price_per_unit }}" step="1" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Обновить заказ</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
 
 <script>
 function applyFilters() {
@@ -144,6 +156,7 @@ function applyFilters() {
         }
     });
 }
+
 </script>
 
 {% endblock %}

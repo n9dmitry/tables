@@ -129,7 +129,13 @@
             <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
             <td>{{ order.performer }}</td>
             <td>{{ order.result.total_print_area }}</td>
-            <td>{{ order.result.total_print_area * actual_settings.printer_rate_m2 }}</td>
+                        <td>
+    {% if order.result.total_print_area is not none and actual_settings.printer_rate_m2 is not none %}
+        {{ order.result.total_print_area * actual_settings.printer_rate_m2 }}
+    {% else %}
+        0
+    {% endif %}
+</td>
         </tr>
         {% else %}
         <tr>
