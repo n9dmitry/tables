@@ -28,16 +28,12 @@
     <table class="table table-bordered">
         <thead>
         <tr>
-            <th rowspan="2">Дата</th>
-            <th rowspan="2">Материал</th>
-            <th colspan="3" class="text-center">Расход</th>
-            <th rowspan="2">Стоимость</th>
+            <th>Дата</th>
+            <th>Материал</th>
+            <th>Расход м2</th>
+            <th>Стоимость</th>
         </tr>
-        <tr>
-            <th>м²</th>
-            <th>л</th>
-            <th>шт</th>
-        </tr>
+
         </thead>
         <tbody>
         {% for order in orders %}
@@ -45,8 +41,43 @@
             <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
             <td>{{ order.material }}</td>
             <td>{{ order.result.total_canvas_area }}</td>
+            <td>{{ order.result.expenses_canvas}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td><strong>Итого:</strong> C Начальная дата по Конечная дата</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <h1>Расходники</h1>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Краски - расход (л)</th>
+            <th>Стоимость краски</th>
+            <th>Люверсы - расход (шт)</th>
+            <th>Стоимость люверсов</th>
+            <th>Усиление - расход (?)</th>
+            <th>Стоимость усилений</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
             <td>{{ order.result.total_paints }}</td>
+            <td>{{ order.result.expenses_prints }}</td>
             <td>{{ order.result.total_eyelets }}</td>
+            <td>{{ order.result.expenses_eyelets }}</td>
+            <td>{{ order.result.total_strengthening }}</td>
+            <td>{{ order.result.expenses_strengthening }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -58,7 +89,7 @@
             <td>-</td>
             <td>-</td>
             <td>-</td>
-
+            <td>-</td>
         </tr>
         </tfoot>
     </table>

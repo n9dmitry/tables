@@ -305,8 +305,8 @@ async def update_order(
             return round(value, 2) if value is not False else False
 
         # Вычисляем общие площади
-        order.result.total_print_area = round_custom(
-            order.print_width * order.print_height * order.quantity)
+        order.result.total_print_area = order.print_width * order.print_height * order.quantity
+        order.result.total_print_area = round(order.result.total_print_area, 3)
         order.result.total_canvas_area = round_custom(
             order.canvas_width * order.canvas_length * order.quantity)
 
@@ -376,6 +376,8 @@ async def update_order(
             order.result.salary_cutter,
             order.result.salary_welder
         ]))
+
+        order.result.total_expenses = round_custom(order.result.total_expenses)
 
         # Налоги и маржа
         order.result.tax = round_custom(0.05 * order.total_amount)
