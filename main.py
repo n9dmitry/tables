@@ -374,6 +374,9 @@ async def update_order(
         else:
             order.result.total_eyelets = False
 
+
+
+
         # Шипы
         if order.spike == "да":
             order.result.total_spikes = round_custom(((max(order.print_width,
