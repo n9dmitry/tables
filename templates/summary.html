@@ -97,8 +97,8 @@
         <tr>
             <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
             <td>{{ order.performer }}</td>
-            <td>{{ order.total_print_area }}</td>
-            <td>{{ order.total_print_area }} * {{ settings.printer_rate_m2 }}</td>
+            <td>{{ order.result.total_print_area }}</td>
+            <td>{{ order.result.total_print_area * actual_settings.printer_rate_m2 }}</td>
         </tr>
         {% else %}
         <tr>

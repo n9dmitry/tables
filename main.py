@@ -143,34 +143,45 @@ def results_page(request: Request, db: Session = Depends(get_db), current_user: 
                                                        "user": current_user,
                                                        "role": current_user.role.value, })
 
+
 @app.get("/summary", response_class=HTMLResponse)
-def results_page(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def summary_page(
+        request: Request,
+        db: Session = Depends(get_db),  # Подключение к БД
+        current_user: User = Depends(get_current_user)  # Получаем текущего пользователя
+):
+    # Проверка прав доступа пользователя
     check_role_access(current_user, {Role.superuser, Role.admin})
-    results = db.query(Result).order_by(Result.order_id.desc()).all()
-    orders = db.query(Order).order_by(Order.id.desc()).all()
-    order = db.query(Order).filter(Order.id == order_id).first()
 
-    if order is not None:
-        order_date = order.date
-
-        # Ищем настройки, которые были обновлены до даты заказа
-        settings_el = (
-            db.query(Settings)
-            .filter(Settings.updated_at <= order_date)
-            .order_by(Settings.updated_at.desc())
-            .first()  # Берем только первый найденный элемент
-        )
+    # Получаем все заказы текущего пользователя (или все заказы, если для админов)
+    if current_user.role in {Role.superuser, Role.admin}:
+        orders = db.query(Order).order_by(Order.id.desc()).all()
     else:
-        settings_el = None
+        orders = db.query(Order).filter(Order.user_id == current_user.id).order_by(Order.id.desc()).all()
 
-    return templates.TemplateResponse("summary.html", {"request": request,
-                                                       "results": results,
-                                                       "orders": orders,
-                                                       "user": current_user,
-                                                       "role": current_user.role.value, })
+    # Получаем все результаты (если нужно)
+    results = db.query(Result).order_by(Result.order_id.desc()).all()
+    settings = db.query(Settings).order_by(Settings.id.desc()).all()
 
+    actual_settings = settings[0]
+    # Получение настроек (если нужно)
+    settings_el = (
+        db.query(Settings)
+        .filter(Settings.updated_at <= datetime.utcnow())
+        .order_by(Settings.updated_at.desc())
+        .first()
+    )
 
-
+    # Рендеринг шаблона
+    return templates.TemplateResponse("summary.html", {
+        "request": request,
+        "results": results,
+        "orders": orders,
+        "user": current_user,
+        "role": current_user.role.value,
+        "settings": settings_el,
+        "actual_settings": actual_settings
+    })
 
 
 @app.post("/orders")
