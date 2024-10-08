@@ -195,8 +195,7 @@
 </div>
 
 {% for order in orders %}
-<!-- Модальное окно для редактирования заказа -->
-<!-- Обновлённое модальное окно для редактирования заказа -->
+<!-- Modal for editing the order -->
 <div class="modal" id="editModal{{ order.id }}" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content" style="border: 2px solid #007bff; border-radius: 15px; padding: 20px;">
@@ -207,7 +206,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="editForm{{ order.id }}" action="/orders/{{ order.id }}" method="POST" style="display: flex; flex-wrap: wrap;">
+                <form id="editForm{{ order.id }}" action="/printer/{{ order.id }}" method="POST" style="display: flex; flex-wrap: wrap;">
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label for="task_number">№ задачи</label>
@@ -286,8 +285,8 @@
         </div>
     </div>
 </div>
-
 {% endfor %}
+
 
 <script>
 function applyFilters() {

@@ -7,7 +7,6 @@ from admin import router as admin_router
 from contextlib import asynccontextmanager
 from datetime import datetime
 from fastapi.staticfiles import StaticFiles
-from settings import settings_router
 from datetime import date
 
 templates = Jinja2Templates(directory="templates")
@@ -34,9 +33,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-app.include_router(settings_router)
-
 
 # Проверка сессии пользователя
 def get_current_user(request: Request, db: Session = Depends(get_db)):
@@ -247,7 +243,7 @@ async def create_order(
     })
 
 
-@app.post("/orders/{order_id}")
+@app.post("/printer/{order_id}")
 async def update_orders(
         order_id: int,
         request: Request,
@@ -335,9 +331,9 @@ async def update_order(
         # Ищем настройки, которые были обновлены до даты заказа
         settings_el = (
             db.query(Settings)
-            .filter(Settings.updated_at <= order_date)
+            .filter(Settings.updated_at <= datetime.utcnow())
             .order_by(Settings.updated_at.desc())
-            .first()  # Берем только первый найденный элемент
+            .first()
         )
     else:
         settings_el = None
@@ -363,14 +359,14 @@ async def update_order(
 
         # Вычисляем общие площади
         order.result.total_print_area = order.print_width * order.print_height * order.quantity
-        order.result.total_print_area = round(order.result.total_print_area, 3)
+        order.result.total_print_area = round((order.result.total_print_area), 3)
         order.result.total_canvas_area = round_custom(
             order.canvas_width * order.canvas_length * order.quantity)
 
         # Общее количество красок
         order.result.total_paints = round_custom(
-            settings_el.paint_consumption_m2 * order.result.total_print_area)
-
+            settings_el.paint_consumption_m2 * order.result.total_print_area
+        )
         # Люверсы
         if order.eyelets.lower() == "да":
             order.result.total_eyelets = round_custom(

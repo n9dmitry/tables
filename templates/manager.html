@@ -108,26 +108,29 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="/orders/update" method="POST">
+                <form id="editForm{{ order.id }}" action="/orders/update" method="POST">
                     <input type="hidden" name="order_id" value="{{ order.id }}">
+
                     <div class="form-group">
                         <label for="customer">Заказчик</label>
                         <input type="text" class="form-control" name="customer" id="customer"
                                value="{{ order.customer }}" required>
                     </div>
+
                     <div class="form-group">
                         <label for="price_per_unit">Цена за ед.</label>
                         <input type="number" class="form-control" name="price_per_unit" id="price_per_unit"
-                               value="{{ order.price_per_unit }}" step="1" required>
+                               value="{{ order.price_per_unit }}" step="0.01" required>
                     </div>
+
                     <button type="submit" class="btn btn-primary">Обновить заказ</button>
                 </form>
-
             </div>
         </div>
     </div>
 </div>
 {% endfor %}
+
 
 
 <script>
