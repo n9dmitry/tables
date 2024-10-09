@@ -89,8 +89,8 @@
             <td>{{ order.reinforcement }}</td>
             <td>{{ order.quantity }}</td>
             <td>{{ order.performer }}</td>
-            <td>
-                <button class="btn btn-info" data-toggle="modal" data-target="#editModal{{ order.id }}">Редактировать</button>
+            <td class="text-center">
+                <button class="btn btn-warning" data-toggle="modal" data-target="#editModal{{ order.id }}"><i class="fas fa-edit"></i></button>
             </td>
         </tr>
         {% endfor %}
