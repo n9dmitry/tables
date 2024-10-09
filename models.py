@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy import create_engine, Column, Integer, String, Float, Enum, ForeignKey, Date
+from sqlalchemy import create_engine, Column, Integer, String, Float, Enum, ForeignKey, Date, Numeric
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
 import enum
@@ -61,7 +61,7 @@ class Result(Base):
     order_id = Column(Integer, ForeignKey('orders.id'), primary_key=True)
     total_print_area = Column(Float, nullable=True)
     total_canvas_area = Column(Float, nullable=True)
-    total_paints = Column(String, nullable=True)
+    total_paints = Column(Float, nullable=True)
     total_eyelets = Column(Integer, nullable=True)
     total_spikes = Column(Integer, nullable=True)
     total_reinforcements = Column(Integer, nullable=True)
@@ -81,6 +81,33 @@ class Result(Base):
     order: Mapped["Order"] = relationship(back_populates="result")
 
 
+class Settings(Base):
+    __tablename__ = 'settings'
+
+    id = Column(Integer, primary_key=True)
+    updated_at = Column(Date, nullable=False)
+
+    blueback_price_m2 = Column(Float)  # Цена м² блюбэка
+    banner_molded_price_m2 = Column(Float)  # Цена м² баннера литого 450г
+    banner_laminated_price_m2 = Column(Float)  # Цена м² баннера ламинат 440г
+    mesh_price_m2 = Column(Float)  # Цена м² сетки
+
+    # blueback_price_roll = Column(Float)  # Стоимость рулона блюбэка
+    # banner_molded_price_roll = Column(Float)  # Стоимость рулона баннера литого 450г
+    # banner_laminated_price_roll = Column(Float)  # Стоимость рулона баннера ламинат 440г
+    # mesh_price_roll = Column(Float)  # Стоимость рулона сетки
+
+    eyelet_step = Column(Float)  # Шаг люверса (м)
+    eyelet_price = Column(Float)  # Цена люверсач
+
+    paint_price_liter = Column(Float)  # Цена литра краски
+    paint_consumption_m2 = Column(Float)  # Расход краски на м²
+    print_price_m2 = Column(Float)  # Цена печати за м²
+
+    printer_rate_m2 = Column(Float)  # Ставка печатника за м²
+    eyelet_rate = Column(Float)  # Ставка за люверс
+    cutter_rate_m2 = Column(Float)  # Ставка резчика за м²
+    payer_rate = Column(Float)  # Ставка пайщика
 
 Base.metadata.create_all(bind=engine)
 
@@ -100,5 +127,3 @@ def create_superuser(db: Session):
     except IntegrityError:
         db.rollback()
 
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=engine)

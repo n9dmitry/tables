@@ -1,58 +1,82 @@
 <div class="sidebar">
-    <h2>CRM ADV</h2>
+    <div class="top-strip"></div> <!-- Полоска сверху -->
+    <h2>CRM Продвижение</h2>
     <ul class="nav flex-column" style="flex-grow: 1; list-style-type: none; padding: 0;">
         {% if role == 'Печатник' %}
-            <li class="nav-item">
-                <a class="nav-link" href="/printer">
-                    <i class="fas fa-print"></i> Печатнику
-                </a>
-            </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/printer">
+                <i class="fas fa-print"></i> Печатнику
+            </a>
+        </li>
         {% elif role == 'Менеджер' %}
-            <li class="nav-item">
-                <a class="nav-link" href="/manager">
-                    <i class="fas fa-user-tie"></i> Менеджеру
-                </a>
-            </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/manager">
+                <i class="fas fa-user-tie"></i> Менеджеру
+            </a>
+        </li>
         {% elif role == 'Администратор' or role == 'Суперпользователь' %}
-            <li class="nav-item">
-                <a class="nav-link" href="/printer">
-                    <i class="fas fa-print"></i> Печатнику
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/manager">
-                    <i class="fas fa-user-tie"></i> Менеджеру
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/results">
-                    <i class="fas fa-chart-line"></i> Результаты
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin">
-                    <i class="fas fa-tools"></i> Панель администратора
-                </a>
-            </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/printer">
+                <i class="fas fa-print"></i> Печатнику
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/manager">
+                <i class="fas fa-user-tie"></i> Менеджеру
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/results">
+                <i class="fas fa-chart-line"></i> Результаты
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/summary">
+                <i class="fas fa-table"></i> Сводные данные
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/admin">
+                <i class="fas fa-user"></i> Управление пользователями
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/settings">
+                <i class="fas fa-tools"></i> Настройки
+            </a>
+        </li>
         {% endif %}
     </ul>
 
-<form action="/logout" method="post" style="display: inline;">
-    <button type="submit" class="nav-link exit-link" style="border: none; background: none; cursor: pointer;">
-        <i class="fas fa-sign-out-alt"></i> Выйти
-    </button>
-</form>
+    <form action="/logout" method="post" style="display: inline;">
+        <button type="submit" class="nav-link exit-link" style="border: none; background: none; cursor: pointer;">
+            <i class="fas fa-sign-out-alt"></i> Выйти
+        </button>
+    </form>
 </div>
 
 <style>
     .sidebar {
-        background-color: #a10000; /* Устанавливаем цвет фона */
+        background-color: #ffffff; /* Цвет фона на белый */
         padding: 20px; /* Отступы для удобства */
         height: 100vh; /* Высота на всю высоту окна */
-        color: #ffffff; /* Цвет текста по умолчанию */
+        color: #000; /* Цвет текста по умолчанию */
         width: 250px; /* Фиксированная ширина меню */
         display: flex;
         flex-direction: column; /* Вертикальное расположение элементов */
+        border-right: 1px solid #ccc; /* Тонкая граница справа */
+    }
+
+    .top-strip {
+        background-color: #a10000; /* Цвет полоски */
+        height: 30px; /* Высота полоски */
+        width: 100%; /* Полоска занимает всю ширину */
+        margin-bottom: 20px; /* Отступ снизу для разделения с остальным контентом */
+    }
+
+    h2 {
+        color: #a10000; /* Цвет заголовка */
+        margin: 0 0 15px; /* Отступы заголовка */
     }
 
     .nav {
@@ -64,7 +88,7 @@
     }
 
     .nav-link {
-        color: #fff; /* Цвет текста по умолчанию для ссылок */
+        color: #000; /* Цвет текста по умолчанию для ссылок */
         text-decoration: none; /* Убираем подчеркивание */
         display: inline-block; /* Позволяет установить фиксированную ширину */
         width: 100%; /* Занимает всю ширину родителя */

@@ -143,11 +143,11 @@
                                 <div class="form-group">
                                     <label for="roleEdit{{ user.id }}">Роль:</label>
                                     <select name="role" id="roleEdit{{ user.id }}" class="form-control" required>
-                                        <option value="Суперпользователь" {% if user.role == 'Суперпользователь' %}selected{% endif %}>Суперпользователь</option>
-                                        <option value="Администратор" {% if user.role == 'Администратор' %}selected{% endif %}>Администратор</option>
-                                        <option value="Менеджер" {% if user.role == 'Менеджер' %}selected{% endif %}>Менеджер</option>
-                                        <option value="Печатник" {% if user.role == 'Печатник' %}selected{% endif %}>Печатник</option>
-                                        <option value="Гость" {% if user.role == 'Гость' %}selected{% endif %}>Гость</option>
+                                        <option value="Суперпользователь" {% if user.role =='Суперпользователь' %}selected{% endif %}>Суперпользователь</option>
+                                        <option value="Администратор" {% if user.role =='Администратор' %}selected{% endif %}>Администратор</option>
+                                        <option value="Менеджер" {% if user.role =='Менеджер' %}selected{% endif %}>Менеджер</option>
+                                        <option value="Печатник" {% if user.role =='Печатник' %}selected{% endif %}>Печатник</option>
+                                        <option value="Гость" {% if user.role =='Гость' %}selected{% endif %}>Гость</option>
                                     </select>
                                 </div>
                                 <button type="submit" class="btn custom-btn">Сохранить изменения</button>

@@ -1,0 +1,326 @@
+{% extends "layout.html" %}
+
+{% block title %}Сводная таблица{% endblock %}
+
+{% block summary %}
+<div class="container mt-4">
+    <h1>Сводная - Материалы и Расходники</h1>
+
+    <!-- Фильтры для всех таблиц -->
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="startDate">Начальная дата:</label>
+            <input type="date" id="startDate" class="form-control">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="endDate">Конечная дата:</label>
+            <input type="date" id="endDate" class="form-control">
+        </div>
+        <div class="form-group col-md-4">
+            <label>Выбор материалов и менеджеров:</label>
+            <select id="materialFilter" class="form-control">
+                <option value="">Все</option>
+                <option value="Блюбэк">Блюбэк</option>
+                <option value="Баннер литой 450гм">Баннер литой 450гм</option>
+                <option value="Баннер ламинат 440гм">Баннер ламинат 440гм</option>
+                <option value="Сетка">Сетка</option>
+            </select>
+            <select id="managerFilter" class="form-control mt-2">
+                <option value="">Все менеджеры</option>
+                <option value="Артём">Артём</option>
+                <option value="Константин">Константин</option>
+            </select>
+        </div>
+    </div>
+
+    <table class="table table-bordered" id="materialsTable">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Материал</th>
+                <th>Расход м2</th>
+                <th>Стоимость</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
+                    <td>{{ order.material }}</td>
+                    <td>{{ order.result.total_canvas_area }}</td>
+                    <td>{{ order.result.expenses_canvas }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td><strong>Итого:</strong> C <span id="dateRangeMaterial"></span></td>
+                <td>-</td>
+                <td id="totalMaterialArea">-</td>
+                <td id="totalMaterialCost">-</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <h1>Расходники</h1>
+    <table class="table table-bordered" id="suppliesTable">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Краски - расход (л)</th>
+                <th>Стоимость краски</th>
+                <th>Люверсы - расход (шт)</th>
+                <th>Стоимость люверсов</th>
+                <th>Усиление - расход (?)</th>
+                <th>Стоимость усилений</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
+                    <td>{{ order.result.total_paints }}</td>
+                    <td>{{ order.result.expenses_prints }}</td>
+                    <td>{{ order.result.total_eyelets }}</td>
+                    <td>{{ order.result.expenses_eyelets }}</td>
+                    <td>{{ order.result.total_strengthening }}</td>
+                    <td>{{ order.result.expenses_strengthening }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td><strong>Итого:</strong> C <span id="dateRangeSupplies"></span></td>
+                <td id="totalPaints">-</td>
+                <td id="totalPaintCost">-</td>
+                <td id="totalEyelets">-</td>
+                <td id="totalEyeletCost">-</td>
+                <td id="totalStrengthening">-</td>
+                <td id="totalStrengtheningCost">-</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <h1>Сводная - Менеджеры</h1>
+    <table class="table table-bordered" id="managersTable">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Менеджер</th>
+                <th>Печати м²</th>
+                <th>ЗП</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
+                    <td>{{ order.performer }}</td>
+                    <td>{{ order.result.total_print_area }}</td>
+                    <td>
+                        {% if order.result.total_print_area is not none and actual_settings.printer_rate_m2 is not none %}
+                            {{ order.result.total_print_area * actual_settings.printer_rate_m2 }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td><strong>Итого:</strong> C <span id="dateRangeManagers"></span></td>
+                <td></td>
+                <td id="totalPrintArea">-</td>
+                <td id="totalSalary">-</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const materialFilterInput = document.getElementById('materialFilter');
+        const managerFilterInput = document.getElementById('managerFilter');
+
+        const updateDateRanges = () => {
+            const startDate = startDateInput.value ? new Date(startDateInput.value).toLocaleDateString() : '';
+            const endDate = endDateInput.value ? new Date(endDateInput.value).toLocaleDateString() : '';
+
+            const dateRangeMaterial = document.getElementById('dateRangeMaterial');
+            dateRangeMaterial.textContent = startDate && endDate ? `${startDate} по ${endDate}` : '';
+
+            const dateRangeSupplies = document.getElementById('dateRangeSupplies');
+            dateRangeSupplies.textContent = startDate && endDate ? `${startDate} по ${endDate}` : '';
+
+            const dateRangeManagers = document.getElementById('dateRangeManagers');
+            dateRangeManagers.textContent = startDate && endDate ? `${startDate} по ${endDate}` : '';
+        };
+
+        const calculateTotals = () => {
+            let materialTotalArea = 0;
+            let materialTotalCost = 0;
+            let paintTotal = 0;
+            let paintCostTotal = 0;
+            let eyeletTotal = 0;
+            let eyeletCostTotal = 0;
+            let strengtheningTotal = 0;
+            let strengtheningCostTotal = 0;
+            let totalPrintArea = 0;
+            let totalSalary = 0;
+
+            // Даты для фильтрации
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            // Итоги для материалов с учетом фильтрации
+            const materialsTable = document.getElementById('materialsTable');
+            const materialRows = materialsTable.querySelectorAll('tbody tr');
+            materialRows.forEach(row => {
+                const dateCell = new Date(row.cells[0].innerText);
+                const area = parseFloat(row.cells[2].innerText) || 0;
+                const cost = parseFloat(row.cells[3].innerText) || 0;
+
+                const dateInRange =
+                    (startDateInput.value && dateCell < startDate) ? false :
+                    (endDateInput.value && dateCell > endDate) ? false : true;
+
+                const materialMatches = !materialFilterInput.value || row.cells[1].innerText === materialFilterInput.value;
+
+                if (dateInRange && materialMatches) {
+                    materialTotalArea += area;
+                    materialTotalCost += cost;
+                }
+            });
+
+            // Итоги для расходников с учетом фильтрации
+            const suppliesTable = document.getElementById('suppliesTable');
+            const supplyRows = suppliesTable.querySelectorAll('tbody tr');
+            supplyRows.forEach(row => {
+                const dateCell = new Date(row.cells[0].innerText);
+                const paint = parseFloat(row.cells[1].innerText) || 0;
+                const paintCost = parseFloat(row.cells[2].innerText) || 0;
+                const eyelet = parseFloat(row.cells[3].innerText) || 0;
+                const eyeletCost = parseFloat(row.cells[4].innerText) || 0;
+                const strengthening = parseFloat(row.cells[5].innerText) || 0;
+                const strengtheningCost = parseFloat(row.cells[6].innerText) || 0;
+
+                const dateInRange =
+                    (startDateInput.value && dateCell < startDate) ? false :
+                    (endDateInput.value && dateCell > endDate) ? false : true;
+
+                if (dateInRange) { // только если строка по дате в диапазоне
+                    paintTotal += paint;
+                    paintCostTotal += paintCost;
+                    eyeletTotal += eyelet;
+                    eyeletCostTotal += eyeletCost;
+                    strengtheningTotal += strengthening;
+                    strengtheningCostTotal += strengtheningCost;
+                }
+            });
+
+            // Итоги для менеджеров с учетом фильтрации
+            const managersTable = document.getElementById('managersTable');
+            const managerRows = managersTable.querySelectorAll('tbody tr');
+            managerRows.forEach(row => {
+                const dateCell = new Date(row.cells[0].innerText);
+                const printArea = parseFloat(row.cells[2].innerText) || 0;
+                const salary = parseFloat(row.cells[3].innerText) || 0;
+
+                const dateInRange =
+                    (startDateInput.value && dateCell < startDate) ? false :
+                    (endDateInput.value && dateCell > endDate) ? false : true;
+
+                const managerMatches = !managerFilterInput.value || row.cells[1].innerText === managerFilterInput.value;
+
+                if (dateInRange && managerMatches) {
+                    totalPrintArea += printArea;
+                    totalSalary += salary;
+                }
+            });
+
+            // Обновление итогов в таблицах
+            document.getElementById('totalMaterialArea').textContent = materialTotalArea.toFixed(2);
+            document.getElementById('totalMaterialCost').textContent = materialTotalCost.toFixed(2);
+
+            document.getElementById('totalPaints').textContent = paintTotal.toFixed(2);
+            document.getElementById('totalPaintCost').textContent = paintCostTotal.toFixed(2);
+            document.getElementById('totalEyelets').textContent = eyeletTotal.toFixed(2);
+            document.getElementById('totalEyeletCost').textContent = eyeletCostTotal.toFixed(2);
+            document.getElementById('totalStrengthening').textContent = strengtheningTotal.toFixed(2);
+            document.getElementById('totalStrengtheningCost').textContent = strengtheningCostTotal.toFixed(2);
+
+            document.getElementById('totalPrintArea').textContent = totalPrintArea.toFixed(2);
+            document.getElementById('totalSalary').textContent = totalSalary.toFixed(2);
+        };
+
+        // Вызываем функцию подсчета сразу при загрузке страницы
+        calculateTotals();
+
+        // Фильтр для таблиц
+        const filterTables = () => {
+            // Применение фильтрации
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const selectedMaterial = materialFilterInput.value;
+            const selectedManager = managerFilterInput.value;
+
+            // Фильтрация таблицы материалов
+            const materialsTable = document.getElementById('materialsTable');
+            const materialRows = materialsTable.querySelectorAll('tbody tr');
+            materialRows.forEach(row => {
+                const dateCell = new Date(row.cells[0].innerText);
+                const materialCell = row.cells[1].innerText;
+
+                const dateInRange =
+                    (startDateInput.value && dateCell < startDate) ? false :
+                    (endDateInput.value && dateCell > endDate) ? false : true;
+
+                const materialMatches = !selectedMaterial || materialCell === selectedMaterial;
+
+                row.style.display = dateInRange && materialMatches ? '' : 'none';
+            });
+
+            // Фильтрация таблицы расходников
+            const suppliesTable = document.getElementById('suppliesTable');
+            const supplyRows = suppliesTable.querySelectorAll('tbody tr');
+            supplyRows.forEach(row => {
+                const dateCell = new Date(row.cells[0].innerText);
+                const dateInRange =
+                    (startDateInput.value && dateCell < startDate) ? false :
+                    (endDateInput.value && dateCell > endDate) ? false : true;
+
+                row.style.display = dateInRange ? '' : 'none';
+            });
+
+            // Фильтрация таблицы менеджеров
+            const managerTable = document.getElementById('managersTable');
+            const managerRows = managerTable.querySelectorAll('tbody tr');
+            managerRows.forEach(row => {
+                const dateCell = new Date(row.cells[0].innerText);
+                const managerCell = row.cells[1].innerText;
+
+                const dateInRange =
+                    (startDateInput.value && dateCell < startDate) ? false :
+                    (endDateInput.value && dateCell > endDate) ? false : true;
+
+                const managerMatches = !selectedManager || managerCell === selectedManager;
+
+                row.style.display = dateInRange && managerMatches ? '' : 'none';
+            });
+
+            updateDateRanges(); // Обновление диапазонов дат
+            calculateTotals(); // Обновление итогов после фильтрации
+        };
+
+        // Обновляем диапазоны при изменении даты
+        startDateInput.addEventListener('change', filterTables);
+        endDateInput.addEventListener('change', filterTables);
+        materialFilterInput.addEventListener('change', filterTables);
+        managerFilterInput.addEventListener('change', filterTables);
+    });
+</script>
+
+{% endblock %}

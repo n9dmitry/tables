@@ -2,293 +2,242 @@
 
 {% block title %}Настройки{% endblock %}
 {% block settings %}
+
 <div class="container mt-5">
     <h1 class="text-center">Настройки</h1>
-
-    <h2 class="mt-4">Материалы</h2>
-    <table class="table table-striped table-bordered mt-2">
-        <thead class="thead-dark">
-            <tr>
-                <th>Название</th>
-                <th>Цена за м²</th>
-                <th>Ширина (м)</th>
-                <th>Длина (м)</th>
-                <th>Стоимость рулона</th>
-                <th>Примечание</th>
-                <th></th>
-            </tr>
+    <button class="btn btn-warning mt-3" data-toggle="modal" data-target="#editSettingsModal">
+        <i class="fas fa-edit"></i>
+    </button>
+    <h3>Актуальные настройки</h3>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Опция</th>
+            <th>Значение</th>
+        </tr>
         </thead>
         <tbody>
-            {% for material in materials %}
-            <tr>
-                <td>{{ material.name }}</td>
-                <td>{{ material.price_per_sqm }}</td>
-                <td>{{ material.width }}</td>
-                <td>{{ material.length }}</td>
-                <td>{{ material.roll_cost }}</td>
-                <td>{{ material.note }}</td>
-                <td>
-                    <button class="btn btn-success" data-toggle="modal" data-target="#editMaterialModal{{ loop.index }}">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                </td>
-
-                <!-- Модальное окно редактирования материала -->
-                <div class="modal fade" id="editMaterialModal{{ loop.index }}" tabindex="-1" role="dialog" aria-labelledby="editMaterialModalLabel{{ loop.index }}" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <form method="post" action="/settings/update_material/{{ material.name }}">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="editMaterialModalLabel{{ loop.index }}">Редактирование материала: {{ material.name }}</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label for="material_name">Название</label>
-                                        <input type="text" class="form-control" id="material_name" name="name" value="{{ material.name }}" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="material_price_per_sqm">Цена за м²</label>
-                                        <input type="number" step="0.01" class="form-control" id="material_price_per_sqm" name="price_per_sqm" value="{{ material.price_per_sqm }}" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="material_width">Ширина (м)</label>
-                                        <input type="number" step="0.01" class="form-control" id="material_width" name="width" value="{{ material.width }}" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="material_length">Длина (м)</label>
-                                        <input type="number" step="0.01" class="form-control" id="material_length" name="length" value="{{ material.length }}" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="material_roll_cost">Стоимость рулона</label>
-                                        <input type="number" step="0.01" class="form-control" id="material_roll_cost" name="roll_cost" value="{{ material.roll_cost }}" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="material_note">Примечание</label>
-                                        <input type="text" class="form-control" id="material_note" name="note" value="{{ material.note }}">
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </tr>
-            {% endfor %}
+        <tr>
+            <td>Обновление</td>
+            <td>
+    {% if actual_settings.updated_at %}
+        {{ actual_settings.updated_at.strftime("%d.%m.%Y") }}
+    {% else %}
+        Нет данных
+    {% endif %}
+</td>
+        </tr>
+        <tr>
+            <td>Цена м² блюбэка</td>
+            <td>{{ actual_settings.blueback_price_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Цена м² баннера литого 450г</td>
+            <td>{{ actual_settings.banner_molded_price_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Цена м² баннера ламинат 440г</td>
+            <td>{{ actual_settings.banner_laminated_price_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Цена м² сетки</td>
+            <td>{{ actual_settings.mesh_price_m2 }}</td>
+        </tr>
+<!--        <tr>-->
+<!--            <td>Стоимость рулона блюбэка</td>-->
+<!--            <td>{{ actual_settings.blueback_price_roll }}</td>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--            <td>Стоимость рулона баннера литого 450г</td>-->
+<!--            <td>{{ actual_settings.banner_molded_price_roll }}</td>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--            <td>Стоимость рулона баннера ламинат 440г</td>-->
+<!--            <td>{{ actual_settings.banner_laminated_price_roll }}</td>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--            <td>Стоимость рулона сетки</td>-->
+<!--            <td>{{ actual_settings.mesh_price_roll }}</td>-->
+<!--        </tr>-->
+        <tr>
+            <td>Шаг люверса (м)</td>
+            <td>{{ actual_settings.eyelet_step }}</td>
+        </tr>
+        <tr>
+            <td>Цена люверса шт</td>
+            <td>{{ actual_settings.eyelet_price }}</td>
+        </tr>
+        <tr>
+            <td>Цена литра краски</td>
+            <td>{{ actual_settings.paint_price_liter }}</td>
+        </tr>
+        <tr>
+            <td>Расход краски на м²</td>
+            <td>{{ actual_settings.paint_consumption_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Цена печати за м²</td>
+            <td>{{ actual_settings.print_price_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Ставка печатника за м²</td>
+            <td>{{ actual_settings.printer_rate_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Ставка за люверс</td>
+            <td>{{ actual_settings.eyelet_rate }}</td>
+        </tr>
+        <tr>
+            <td>Ставка резчика за м²</td>
+            <td>{{ actual_settings.cutter_rate_m2 }}</td>
+        </tr>
+        <tr>
+            <td>Ставка пайщика</td>
+            <td>{{ actual_settings.payer_rate }}</td>
+        </tr>
         </tbody>
     </table>
 
-    <h2 class="mt-4">Аксессуары</h2>
-<table class="table table-striped table-bordered mt-2">
-    <thead class="thead-dark">
-        <tr>
-            <th>Название</th>
-            <th>Цена за единицу</th>
-            <th>Примечание</th>
-            <th>Действия</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for accessory in accessories %}
-        <tr>
-            <td>{{ accessory.name }}</td>
-            <td>{{ accessory.price_per_unit }}</td>
-            <td>{{ accessory.note }}</td>
-            <td>
-                <button class="btn btn-success" data-toggle="modal" data-target="#editAccessoryModal{{ loop.index }}">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </td>
-
-            <!-- Модальное окно редактирования аксесуаров -->
-            <div class="modal fade" id="editAccessoryModal{{ loop.index }}" tabindex="-1" role="dialog" aria-labelledby="editAccessoryModalLabel{{ loop.index }}" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <form method="post" action="/settings/update_accessory/{{ accessory.name }}">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editAccessoryModalLabel{{ loop.index }}">Редактирование аксессуара: {{ accessory.name }}</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label for="accessory_name">Название</label>
-                                    <input type="text" class="form-control" id="accessory_name" name="name" value="{{ accessory.name }}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="accessory_price_per_unit">Цена за единицу</label>
-                                    <input type="number" step="0.01" class="form-control" id="accessory_price_per_unit" name="price_per_unit" value="{{ accessory.price_per_unit }}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="accessory_note">Примечание</label>
-                                    <input type="text" class="form-control" id="accessory_note" name="note" value="{{ accessory.note }}">
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-
-    <h2 class="mt-4">Краска</h2>
-<table class="table table-striped table-bordered mt-2">
-    <thead class="thead-dark">
-        <tr>
-            <th>Стоимость литра</th>
-            <th>Расход на м²</th>
-            <th>Стоимость печати на м²</th>
-            <th>Действия</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>{{ paint.liter_cost }}</td>
-            <td>{{ paint.consumption_per_sqm }}</td>
-            <td>{{ paint.printing_cost_per_sqm }}</td>
-            <td>
-                <button class="btn btn-success" data-toggle="modal" data-target="#editPaintModal">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </td>
-
-            <!-- Модальное окно редактирования краски -->
-            <div class="modal fade" id="editPaintModal" tabindex="-1" role="dialog" aria-labelledby="editPaintModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <form method="post" action="/settings/update_paint">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editPaintModalLabel">Редактирование краски</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label for="paint_liter_cost">Стоимость литра</label>
-                                    <input type="number" step="0.01" class="form-control" id="paint_liter_cost" name="liter_cost" value="{{ paint.liter_cost }}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="paint_consumption_per_sqm">Расход на м²</label>
-                                    <input type="number" step="0.01" class="form-control" id="paint_consumption_per_sqm" name="consumption_per_sqm" value="{{ paint.consumption_per_sqm }}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="paint_printing_cost_per_sqm">Стоимость печати на м²</label>
-                                    <input type="number" step="0.01" class="form-control" id="paint_printing_cost_per_sqm" name="printing_cost_per_sqm" value="{{ paint.printing_cost_per_sqm }}" required>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </tr>
-    </tbody>
-</table>
-
-
-    <h2 class="mt-4">Тарифы</h2>
-    <table class="table table-striped table-bordered mt-2">
-        <thead class="thead-dark">
-            <tr>
-                <th>Тип тарифа</th>
-                <th>Ставка</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Тариф принтера за м²</td>
-                <td>{{ rates.printer_rate_per_sqm }}</td>
-            </tr>
-            <tr>
-                <td>Ставка люверса</td>
-                <td>{{ rates.eyelet_rate }}</td>
-            </tr>
-            <tr>
-                <td>Ставка резака за м²</td>
-                <td>{{ rates.cutter_rate_per_sqm }}</td>
-
-            </tr>
-            <tr>
-                <td>Ставка сварщика</td>
-                <td>{{ rates.welder_rate }}</td>
-            </tr>
-
-
-                    <button class="btn btn-success" data-toggle="modal" data-target="#editRatesModal">
-                      <i class="fas fa-edit"></i>
-                    </button>
-
-
-
-
-        </tbody>
-    </table>
-
-    <!-- Модальное окно редактирования тарифов -->
-    <div class="modal fade" id="editRatesModal" tabindex="-1" role="dialog" aria-labelledby="editRatesModalLabel" aria-hidden="true">
+    <!-- Модальное окно для редактирования настроек -->
+    <div class="modal fade" id="editSettingsModal" tabindex="-1" role="dialog" aria-labelledby="editSettingsModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form method="post" action="/settings/update_rates">
+                <form method="POST" action="/create_settings">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editRatesModalLabel">Редактирование тарифов</h5>
+                        <h5 class="modal-title" id="editSettingsModalLabel">Редактировать Настройки</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
+                        <!-- Поля для редактирования настроек -->
                         <div class="form-group">
-                            <label for="printer_rate_per_sqm">Тариф принтера за м²</label>
-                            <input type="number" step="0.01" class="form-control" id="printer_rate_per_sqm" name="printer_rate_per_sqm" value="{{ rates.printer_rate_per_sqm }}" required>
+                            <label for="blueback_price_m2">Цена м² блюбэка</label>
+                            <input type="number" step="0.01" class="form-control" id="blueback_price_m2" name="blueback_price_m2" value="{{ actual_settings.blueback_price_m2 }}" required>
                         </div>
                         <div class="form-group">
-                            <label for="eyelet_rate">Ставка люверса</label>
-                            <input type="number" step="0.01" class="form-control" id="eyelet_rate" name="eyelet_rate" value="{{ rates.eyelet_rate }}" required>
+                            <label for="banner_molded_price_m2">Цена м² баннера литого 450г</label>
+                            <input type="number" step="0.01" class="form-control" id="banner_molded_price_m2" name="banner_molded_price_m2" value="{{ actual_settings.banner_molded_price_m2 }}" required>
                         </div>
                         <div class="form-group">
-                            <label for="cutter_rate_per_sqm">Ставка резака за м²</label>
-                            <input type="number" step="0.01" class="form-control" id="cutter_rate_per_sqm" name="cutter_rate_per_sqm" value="{{ rates.cutter_rate_per_sqm }}" required>
+                            <label for="banner_laminated_price_m2">Цена м² баннера ламинат 440г</label>
+                            <input type="number" step="0.01" class="form-control" id="banner_laminated_price_m2" name="banner_laminated_price_m2" value="{{ actual_settings.banner_laminated_price_m2 }}" required>
                         </div>
                         <div class="form-group">
-                            <label for="welder_rate">Ставка сварщика</label>
-                            <input type="number" step="0.01" class="form-control" id="welder_rate" name="welder_rate" value="{{ rates.welder_rate }}" required>
+                            <label for="mesh_price_m2">Цена м² сетки</label>
+                            <input type="number" step="0.01" class="form-control" id="mesh_price_m2" name="mesh_price_m2" value="{{ actual_settings.mesh_price_m2 }}" required>
+                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label for="blueback_price_roll">Стоимость рулона блюбэка</label>-->
+<!--                            <input type="number" step="0.01" class="form-control" id="blueback_price_roll" name="blueback_price_roll" value="{{ actual_settings.blueback_price_roll }}" required>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label for="banner_molded_price_roll">Стоимость рулона баннера литого 450г</label>-->
+<!--                            <input type="number" step="0.01" class="form-control" id="banner_molded_price_roll" name="banner_molded_price_roll" value="{{ actual_settings.banner_molded_price_roll }}" required>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label for="banner_laminated_price_roll">Стоимость рулона баннера ламинат 440г</label>-->
+<!--                            <input type="number" step="0.01" class="form-control" id="banner_laminated_price_roll" name="banner_laminated_price_roll" value="{{ actual_settings.banner_laminated_price_roll }}" required>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label for="mesh_price_roll">Стоимость рулона сетки</label>-->
+<!--                            <input type="number" step="0.01" class="form-control" id="mesh_price_roll" name="mesh_price_roll" value="{{ actual_settings.mesh_price_roll }}" required>-->
+<!--                        </div>-->
+                        <div class="form-group">
+                            <label for="eyelet_step">Шаг люверса (м)</label>
+                            <input type="number" step="0.01" class="form-control" id="eyelet_step" name="eyelet_step" value="{{ actual_settings.eyelet_step }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="eyelet_price">Цена люверса шт</label>
+                            <input type="number" step="0.01" class="form-control" id="eyelet_price" name="eyelet_price" value="{{ actual_settings.eyelet_price }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="paint_price_liter">Цена литра краски</label>
+                            <input type="number" step="0.01" class="form-control" id="paint_price_liter" name="paint_price_liter" value="{{ actual_settings.paint_price_liter }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="paint_consumption_m2">Расход краски на м²</label>
+                            <input type="number" step="0.01" class="form-control" id="paint_consumption_m2" name="paint_consumption_m2" value="{{ actual_settings.paint_consumption_m2 }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="print_price_m2">Цена печати за м²</label>
+                            <input type="number" step="0.01" class="form-control" id="print_price_m2" name="print_price_m2" value="{{ actual_settings.print_price_m2 }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="printer_rate_m2">Ставка печатника за м²</label>
+                            <input type="number" step="0.01" class="form-control" id="printer_rate_m2" name="printer_rate_m2" value="{{ actual_settings.printer_rate_m2 }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="eyelet_rate">Ставка за люверс</label>
+                            <input type="number" step="0.01" class="form-control" id="eyelet_rate" name="eyelet_rate" value="{{ actual_settings.eyelet_rate }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cutter_rate_m2">Ставка резчика за м²</label>
+                            <input type="number" step="0.01" class="form-control" id="cutter_rate_m2" name="cutter_rate_m2" value="{{ actual_settings.cutter_rate_m2 }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="payer_rate">Ставка пайщика</label>
+                            <input type="number" step="0.01" class="form-control" id="payer_rate" name="payer_rate" value="{{ actual_settings.payer_rate }}" required>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <h2 class="mt-4">Исполнители</h2>
-
-    <ul class="list-group mt-2">
-        {% for performer in performers %}
-        <li class="list-group-item">{{ performer }}</li>
+    <h3>История настроек</h3>
+    <table class="table table-bordered mt-4">
+        <thead class="thead-light">
+        <tr>
+            <th>Дата обновления</th>
+            <th>Цена м² блюбэка</th>
+            <th>Цена м² баннера литого 450г</th>
+            <th>Цена м² баннера ламинат 440г</th>
+            <th>Цена м² сетки</th>
+<!--            <th>Стоимость рулона блюбэка</th>-->
+<!--            <th>Стоимость рулона баннера литого 450г</th>-->
+<!--            <th>Стоимость рулона баннера ламинат 440г</th>-->
+<!--            <th>Стоимость рулона сетки</th>-->
+            <th>Шаг люверса (м)</th>
+            <th>Цена люверса шт</th>
+            <th>Цена литра краски</th>
+            <th>Расход краски на м²</th>
+            <th>Цена печати за м²</th>
+            <th>Ставка печатника за м²</th>
+            <th>Ставка за люверс</th>
+            <th>Ставка резчика за м²</th>
+            <th>Ставка пайщика</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for setting in settings %}
+        <tr>
+            <td>{{ setting.updated_at.strftime("%d.%m.%Y") }}</td>
+            <td>{{ setting.blueback_price_m2 }}</td>
+            <td>{{ setting.banner_molded_price_m2 }}</td>
+            <td>{{ setting.banner_laminated_price_m2 }}</td>
+            <td>{{ setting.mesh_price_m2 }}</td>
+<!--            <td>{{ setting.blueback_price_roll }}</td>-->
+<!--            <td>{{ setting.banner_molded_price_roll }}</td>-->
+<!--            <td>{{ setting.banner_laminated_price_roll }}</td>-->
+<!--            <td>{{ setting.mesh_price_roll }}</td>-->
+            <td>{{ setting.eyelet_step }}</td>
+            <td>{{ setting.eyelet_price }}</td>
+            <td>{{ setting.paint_price_liter }}</td>
+            <td>{{ setting.paint_consumption_m2 }}</td>
+            <td>{{ setting.print_price_m2 }}</td>
+            <td>{{ setting.printer_rate_m2 }}</td>
+            <td>{{ setting.eyelet_rate }}</td>
+            <td>{{ setting.cutter_rate_m2 }}</td>
+            <td>{{ setting.payer_rate }}</td>
+        </tr>
         {% endfor %}
-    </ul>
-
-    <h2 class="mt-4">Дополнительные опции</h2>
-    <p class="mt-2">Доступна дополнительная опция: <strong>{{ options.additional_option.available }}</strong></p>
+        </tbody>
+    </table>
 </div>
 
 {% endblock %}

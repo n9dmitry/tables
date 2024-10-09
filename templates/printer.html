@@ -3,15 +3,50 @@
 {% block title %}Главная страница{% endblock %}
 {% block result %}
 
+
 <div class="content">
     <h1>Печатник - Заказы</h1>
+
     {% if message %}
     <div class="alert alert-{{ message_type }}">
         {{ message }}
     </div>
     {% endif %}
-    <button class="btn btn-warning mt-3">Добавить</button>
-    <table class="table table-bordered mt-4">
+
+    <button class="btn btn-warning mt-3" data-toggle="modal" data-target="#orderModal">Добавить</button>
+
+    <!-- Фильтры -->
+    <div class="row mt-3">
+                <div class="col-md-12 form-group mt-3">
+            <label for="search_order">Поиск по номеру заказа</label>
+            <input type="text" class="form-control" id="search_order" oninput="applyFilters()" placeholder="Введите номер заказа...">
+        </div>
+        <div class="col-md-4 form-group">
+            <label for="filter_performer">Исполнитель</label>
+            <select class="form-control" id="filter_performer" onchange="applyFilters()">
+                <option value="">Все</option>
+                <option value="Константин">Константин</option>
+                <option value="Артём">Артём</option>
+            </select>
+        </div>
+        <div class="col-md-4 form-group">
+            <label for="filter_date">Дата</label>
+            <input type="date" class="form-control" id="filter_date" onchange="applyFilters()">
+        </div>
+        <div class="col-md-4 form-group">
+            <label for="filter_material">Материал</label>
+            <select class="form-control" id="filter_material" onchange="applyFilters()">
+                <option value="">Все</option>
+                <option value="Блюбэк">Блюбэк</option>
+                <option value="Баннер литой 450гм">Баннер литой 450гм</option>
+                <option value="Баннер ламинат 440гм">Баннер ламинат 440гм</option>
+                <option value="Сетка">Сетка</option>
+            </select>
+        </div>
+
+    </div>
+
+    <table class="table table-bordered mt-4" id="orders_table">
         <thead class="thead-light">
         <tr>
             <th rowspan="2">№ п/п</th>
@@ -24,6 +59,7 @@
             <th colspan="3">ДОП ОПЕРАЦИИ</th>
             <th rowspan="2">Кол-во</th>
             <th rowspan="2">Исполнитель</th>
+            <th rowspan="2">Действия</th>
         </tr>
         <tr>
             <th>Ширина</th>
@@ -38,7 +74,7 @@
         {% if orders %}
         <tbody>
         {% for order in orders %}
-        <tr>
+        <tr class="order-row" data-performer="{{ order.performer }}" data-date="{{ order.date.strftime('%Y-%m-%d') }}" data-material="{{ order.material }}" data-task-number="{{ order.task_number }}">
             <td>{{ order.id }}</td>
             <td>{{ order.task_number }}</td>
             <td>{{ order.date.strftime("%d.%m.%Y") }}</td>
@@ -53,18 +89,21 @@
             <td>{{ order.reinforcement }}</td>
             <td>{{ order.quantity }}</td>
             <td>{{ order.performer }}</td>
+            <td class="text-center">
+                <button class="btn btn-warning" data-toggle="modal" data-target="#editModal{{ order.id }}"><i class="fas fa-edit"></i></button>
+            </td>
         </tr>
         {% endfor %}
         </tbody>
         {% else %}
-
         <tr>
-            <td colspan="14">Нет доступных заказов</td>
+            <td colspan="15">Нет доступных заказов</td>
         </tr>
         {% endif %}
     </table>
 </div>
-<!-- Модальное окно -->
+
+<!-- Модальное окно для добавления заказа -->
 <div class="modal" id="orderModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content" style="border: 2px solid #007bff; border-radius: 15px; padding: 20px;">
@@ -109,13 +148,11 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="canvas_width">Ширина (канвас)</label>
-                            <input type="number" class="form-control" id="canvas_width" name="canvas_width" step="0.1"
-                                   required>
+                            <input type="number" class="form-control" id="canvas_width" name="canvas_width" step="0.1" required>
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="canvas_length">Длина (канвас)</label>
-                            <input type="number" class="form-control" id="canvas_length" name="canvas_length"
-                                   step="0.1" required>
+                            <input type="number" class="form-control" id="canvas_length" name="canvas_length" step="0.1" required>
                         </div>
                         <input type="hidden" name="eyelets" value="нет">
                         <input type="hidden" name="reinforcement" value="нет">
@@ -133,7 +170,6 @@
                             <label>Усиление</label>
                             <input type="checkbox" id="reinforcement" name="reinforcement" value="да">
                         </div>
-
 
                         <div class="col-md-6 form-group">
                             <label for="quantity">Кол-во</label>
@@ -158,12 +194,126 @@
     </div>
 </div>
 
+{% for order in orders %}
+<!-- Modal for editing the order -->
+<div class="modal" id="editModal{{ order.id }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="border: 2px solid #007bff; border-radius: 15px; padding: 20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактировать заказ № {{ order.task_number }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm{{ order.id }}" action="/printer/{{ order.id }}" method="POST" style="display: flex; flex-wrap: wrap;">
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="task_number">№ задачи</label>
+                            <input type="number" class="form-control" id="task_number" name="task_number" value="{{ order.task_number }}" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="date">Дата</label>
+                            <input type="date" class="form-control" id="date" name="date" value="{{ order.date.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="subject">Сюжет</label>
+                            <input type="text" class="form-control" id="subject" name="subject" value="{{ order.subject }}" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="material">Материал</label>
+                            <select class="form-control" id="material" name="material" required>
+                                <option value="" disabled>Выберите материал...</option>
+                                <option value="Блюбэк" {% if order.material == 'Блюбэк' %}selected{% endif %}>Блюбэк</option>
+                                <option value="Баннер литой 450гм" {% if order.material == 'Баннер литой 450гм' %}selected{% endif %}>Баннер литой 450гм</option>
+                                <option value="Баннер ламинат 440гм" {% if order.material == 'Баннер ламинат 440гм' %}selected{% endif %}>Баннер ламинат 440гм</option>
+                                <option value="Сетка" {% if order.material == 'Сетка' %}selected{% endif %}>Сетка</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="print_width">Ширина (печати)</label>
+                            <input type="number" class="form-control" id="print_width" name="print_width" value="{{ order.print_width }}" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="print_height">Высота (печати)</label>
+                            <input type="number" class="form-control" id="print_height" name="print_height" value="{{ order.print_height }}" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="canvas_width">Ширина (канвас)</label>
+                            <input type="number" class="form-control" id="canvas_width" name="canvas_width" step="0.1" value="{{ order.canvas_width }}" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="canvas_length">Длина (канвас)</label>
+                            <input type="number" class="form-control" id="canvas_length" name="canvas_length" step="0.1" value="{{ order.canvas_length }}" required>
+                        </div>
+                        <input type="hidden" name="eyelets" value="нет">
+                        <input type="hidden" name="reinforcement" value="нет">
+                        <input type="hidden" name="spike" value="нет">
+
+                        <div class="col-md-6 form-group">
+                            <label>Люверсы</label>
+                            <input type="checkbox" id="eyelets" name="eyelets" value="да" {% if order.eyelets == 'да' %}checked{% endif %}>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Спайка</label>
+                            <input type="checkbox" id="spike" name="spike" value="да" {% if order.spike == 'да' %}checked{% endif %}>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Усиление</label>
+                            <input type="checkbox" id="reinforcement" name="reinforcement" value="да" {% if order.reinforcement == 'да' %}checked{% endif %}>
+                        </div>
+
+                        <div class="col-md-6 form-group">
+                            <label for="quantity">Кол-во</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" value="{{ order.quantity }}" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="performer">Исполнитель</label>
+                            <select class="form-control" id="performer" name="performer" required>
+                                <option value="" disabled>Выберите исполнителя...</option>
+                                <option value="Константин" {% if order.performer == 'Константин' %}selected{% endif %}>Константин</option>
+                                <option value="Артём" {% if order.performer == 'Артём' %}selected{% endif %}>Артём</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="submit" class="btn btn-primary" form="editForm{{ order.id }}">Ок</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
 
 <script>
-    // Открываем модальное окно при нажатии на кнопку "Добавить"
-    document.querySelector('.btn-warning').addEventListener('click', function() {
-      $('#orderModal').modal('show');
+function applyFilters() {
+    const performerFilter = document.getElementById("filter_performer").value;
+    const dateFilter = document.getElementById("filter_date").value;
+    const materialFilter = document.getElementById("filter_material").value;
+    const searchValue = document.getElementById("search_order").value.toLowerCase();
+
+    const rows = document.querySelectorAll(".order-row");
+    rows.forEach(row => {
+        const performer = row.dataset.performer;
+        const date = row.dataset.date;
+        const material = row.dataset.material;
+        const taskNumber = row.dataset.taskNumber.toString();
+
+        const matchPerformer = performerFilter ? performer === performerFilter : true;
+        const matchDate = dateFilter ? date === dateFilter : true;
+        const matchMaterial = materialFilter ? material === materialFilter : true;
+        const matchSearch = taskNumber.includes(searchValue); // Поиск по номеру задачи
+
+        if (matchPerformer && matchDate && matchMaterial && matchSearch) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
     });
+}
 </script>
 
 {% endblock %}
