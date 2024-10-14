@@ -2,12 +2,13 @@ from fastapi import FastAPI, Depends, HTTPException, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from models import SessionLocal, create_superuser, User, Order, Result, Role, Settings
+from models import SessionLocal, create_superuser, User, Order, Result, Role, Settings, LoginForm
 from admin import router as admin_router
 from contextlib import asynccontextmanager
 from datetime import datetime
 from fastapi.staticfiles import StaticFiles
 from datetime import date
+#
 
 templates = Jinja2Templates(directory="templates")
 
@@ -20,7 +21,7 @@ def get_db():
     finally:
         db.close()
 
-
+#
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db = SessionLocal()
@@ -56,23 +57,28 @@ def read_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 
-# Авторизация пользователя
 @app.post("/login/")
-def login(
-        request: Request,
-        login: str = Form(...),
-        password: str = Form(...),
-        db: Session = Depends(get_db)
+async def login(
+    request: Request,
+    db: Session = Depends(get_db),
+    login: str = Form(...),  # Изменено на Form для получения данных из формы
+    password: str = Form(...),  # Изменено на Form для получения данных из формы
 ):
-    user = db.query(User).filter(User.login == login).first()
-    if user is None or user.password != password:
+    # Создаём объект Pydantic для валидации
+    login_data = LoginForm(login=login, password=password)
+
+    # Поиск пользователя по логину
+    user = db.query(User).filter(User.login == login_data.login).first()
+
+    if user is None or user.password != login_data.password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+    # Ответ с установкой куки
     response = templates.TemplateResponse("index.html", {
         "request": request,
         "user": user,
-        "role": user.role,  # Убрано .value
-        "name": user.name,  # Убрано .value
+        "role": user.role,
+        "name": user.name,
     })
     response.set_cookie(key="session_id", value=user.id)
     return response
@@ -565,3 +571,4 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="127.0.0.1", port=8000)
+

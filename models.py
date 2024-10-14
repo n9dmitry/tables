@@ -7,6 +7,8 @@ import enum
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import inspect
 from sqlalchemy.orm import Mapped
+from pydantic import BaseModel
+
 
 DATABASE_URL = "sqlite:///database.db"
 engine = create_engine(DATABASE_URL)
@@ -20,6 +22,12 @@ class Role(str, enum.Enum):
     manager = "Менеджер"
     printer = "Печатник"
     guest = "Гость"
+
+
+# валидация через пайдентик
+class LoginForm(BaseModel):
+    login: str
+    password: str
 
 class User(Base):
     __tablename__ = "users"
