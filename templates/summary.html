@@ -156,12 +156,10 @@
 <script>
     // Вынесение showTable за пределы DOMContentLoaded
     const showTable = (tableId) => {
-        // Скрыть все таблицы
         document.querySelectorAll('.table-container').forEach((table) => {
-            table.style.display = 'none';
+            table.style.display = 'none';  // Скрываем все таблицы
         });
-        // Показать только выбранную таблицу
-        document.getElementById(tableId).style.display = 'block';
+        document.getElementById(tableId).style.display = 'block';  // Показываем выбранную таблицу
     };
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -174,14 +172,40 @@
             const startDate = startDateInput.value ? new Date(startDateInput.value).toLocaleDateString() : '';
             const endDate = endDateInput.value ? new Date(endDateInput.value).toLocaleDateString() : '';
 
-            const dateRangeMaterial = document.getElementById('dateRangeMaterial');
-            dateRangeMaterial.textContent = startDate && endDate ? `${startDate} по ${endDate}` : '';
+            document.getElementById('dateRangeMaterial').textContent = startDate && endDate ? `${startDate} по ${endDate}` : '';
+            document.getElementById('dateRangeSupplies').textContent = startDate && endDate ? `${startDate} по ${endDate}` : '';
+            document.getElementById('dateRangeManagers').textContent = startDate && endDate ? `${startDate} по ${endDate}` : '';
+        };
 
-            const dateRangeSupplies = document.getElementById('dateRangeSupplies');
-            dateRangeSupplies.textContent = startDate && endDate ? `${startDate} по ${endDate}` : '';
+        const filterTables = () => {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
 
-            const dateRangeManagers = document.getElementById('dateRangeManagers');
-            dateRangeManagers.textContent = startDate && endDate ? `${startDate} по ${endDate}` : '';
+            // Фильтрация материалов
+            const materialRows = document.querySelectorAll('#materialsTable tbody tr');
+            materialRows.forEach(row => {
+                const dateCell = new Date(row.cells[0].innerText);
+                const materialMatches = !materialFilterInput.value || row.cells[1].innerText === materialFilterInput.value;
+                const dateInRange = (isNaN(startDate.getTime()) || dateCell >= startDate) && (isNaN(endDate.getTime()) || dateCell <= endDate);
+                row.style.display = materialMatches && dateInRange ? '' : 'none';
+            });
+
+            // Фильтрация расходников
+            const supplyRows = document.querySelectorAll('#suppliesTable tbody tr');
+            supplyRows.forEach(row => {
+                const dateCell = new Date(row.cells[0].innerText);
+                const dateInRange = (isNaN(startDate.getTime()) || dateCell >= startDate) && (isNaN(endDate.getTime()) || dateCell <= endDate);
+                row.style.display = dateInRange ? '' : 'none';
+            });
+
+            // Фильтрация менеджеров
+            const managerRows = document.querySelectorAll('#managersTable tbody tr');
+            managerRows.forEach(row => {
+                const dateCell = new Date(row.cells[0].innerText);
+                const managerMatches = !managerFilterInput.value || row.cells[1].innerText === managerFilterInput.value;
+                const dateInRange = (isNaN(startDate.getTime()) || dateCell >= startDate) && (isNaN(endDate.getTime()) || dateCell <= endDate);
+                row.style.display = managerMatches && dateInRange ? '' : 'none';
+            });
         };
 
         const calculateTotals = () => {
@@ -194,23 +218,22 @@
 
         // События для фильтров и обновление их
         startDateInput.addEventListener('change', () => {
-            calculateTotals();
+            filterTables();
             updateDateRanges();
         });
         endDateInput.addEventListener('change', () => {
-            calculateTotals();
+            filterTables();
             updateDateRanges();
         });
         materialFilterInput.addEventListener('change', () => {
-            calculateTotals();
+            filterTables();
             updateDateRanges();
         });
         managerFilterInput.addEventListener('change', () => {
-            calculateTotals();
+            filterTables();
             updateDateRanges();
         });
     });
 </script>
 
 {% endblock %}
-
