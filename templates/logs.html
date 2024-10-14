@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Logs</title>
+    <style>
+        body {
+            background-color: #1e1e1e; /* Темный фон */
+            color: #ffffff; /* Белый текст */
+            font-family: 'Courier New', Courier, monospace; /* Моноширинный шрифт */
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #4caf50; /* Светло-зеленый заголовок */
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #fff;
+        }
+        .date-filters {
+            display: flex;
+            justify-content: space-between; /* Равномерное распределение */
+            margin-bottom: 20px; /* Отступ под фильтрами */
+        }
+        .date-filters label {
+            margin-right: 10px; /* Отступ между меткой и полем ввода */
+        }
+        .date-filters input {
+            width: 30%; /* Ширина полей ввода дат */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse; /* Убрать двойные границы */
+        }
+        th, td {
+            padding: 10px; /* Отступы в ячейках */
+            border: 1px solid #555; /* Серые границы */
+            text-align: left; /* Выравнивание текста в ячейках */
+        }
+        th {
+            background-color: #333; /* Темно-серый фон для заголовка таблицы */
+        }
+        tr:hover {
+            background-color: #444; /* Цвет при наведении на строку */
+        }
+    </style>
+</head>
+<body>
+    <h1>User Action Logs</h1>
+    <input type="text" id="searchInput" placeholder="Search by user name..." onkeyup="filterTable()">
+
+    <div class="date-filters">
+        <label for="startDate">From:</label>
+        <input type="date" id="startDate" oninput="filterTable()">
+
+        <label for="endDate">To:</label>
+        <input type="date" id="endDate" oninput="filterTable()">
+    </div>
+
+    <table id="logsTable">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Action</th>
+                <th>Page</th>
+                <th onclick="sortTable(3)">Timestamp &#x2195;</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in action_logs %}
+            <tr>
+                <td>{{ log.user.name }}</td>
+                <td>{{ log.action }}</td>
+                <td><a href="{{ log.page }}">{{ log.page }}</a></td> <!-- Обновленная ссылка на страницу -->
+                <td>{{ log.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const startDateInput = document.getElementById("startDate");
+            const endDateInput = document.getElementById("endDate");
+            const filter = input.value.toLowerCase();
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const table = document.getElementById("logsTable");
+            const rows = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < rows.length; i++) { // Пропускаем заголовок
+                const cells = rows[i].getElementsByTagName("td");
+                const userName = cells[0] ? cells[0].innerText.toLowerCase() : "";
+                const timestamp = new Date(cells[3].innerText); // Изменили индекс на 3
+
+                const matchesUser = userName.indexOf(filter) > -1;
+                const matchesDate = (!startDateInput.value || timestamp >= startDate) &&
+                                    (!endDateInput.value || timestamp <= endDate);
+
+                if (matchesUser && matchesDate) {
+                    rows[i].style.display = ""; // Показать строку
+                } else {
+                    rows[i].style.display = "none"; // Скрыть строку
+                }
+            }
+        }
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById("logsTable");
+            const tbody = table.getElementsByTagName("tbody")[0];
+            const rows = Array.from(tbody.getElementsByTagName("tr"));
+
+            const isAscending = rows[0].getAttribute("data-sort") !== "asc";
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].innerText;
+                const bText = b.cells[columnIndex].innerText;
+
+                if (columnIndex === 3) { // Сортировка по дате
+                    return new Date(aText) - new Date(bText);
+                }
+                return aText.localeCompare(bText);
+            });
+
+            if (!isAscending) rows.reverse();
+            rows.forEach(row => tbody.appendChild(row));
+            rows[0].setAttribute("data-sort", isAscending ? "asc" : "desc");
+        }
+    </script>
+</body>
+</html>

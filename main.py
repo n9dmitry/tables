@@ -505,6 +505,7 @@ async def read_settings(request: Request, current_user: User = Depends(get_curre
                                        })
 
 
+
 @app.post('/create_settings')
 async def create_settings(request: Request, db: Session = Depends(get_db)):
     # Получаем данные из формы
