@@ -21,7 +21,7 @@ def get_db():
     finally:
         db.close()
 
-
+#
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db = SessionLocal()
