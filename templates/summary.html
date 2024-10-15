@@ -209,34 +209,84 @@
         };
 
         const calculateTotals = () => {
-            // Ваши вычисления итогов...
+            // Итоги для материалов
+            let totalMaterialArea = 0;
+            let totalMaterialCost = 0;
+
+            const materialRows = document.querySelectorAll('#materialsTable tbody tr:not([style*="display: none"])');
+            materialRows.forEach(row => {
+                totalMaterialArea += parseFloat(row.cells[2].innerText) || 0; // Расход м2
+                totalMaterialCost += parseFloat(row.cells[3].innerText) || 0; // Стоимость
+            });
+
+            document.getElementById('totalMaterialArea').textContent = totalMaterialArea.toFixed(2); // Обновляем итоговые значения
+            document.getElementById('totalMaterialCost').textContent = totalMaterialCost.toFixed(2);
+
+            // Итоги для расходников
+            let totalPaints = 0;
+            let totalPaintCost = 0;
+            let totalEyelets = 0;
+            let totalEyeletCost = 0;
+            let totalStrengthening = 0;
+            let totalStrengtheningCost = 0;
+
+            const supplyRows = document.querySelectorAll('#suppliesTable tbody tr:not([style*="display: none"])');
+            supplyRows.forEach(row => {
+                totalPaints += parseFloat(row.cells[1].innerText) || 0;
+                totalPaintCost += parseFloat(row.cells[2].innerText) || 0;
+                totalEyelets += parseFloat(row.cells[3].innerText) || 0;
+                totalEyeletCost += parseFloat(row.cells[4].innerText) || 0;
+                totalStrengthening += parseFloat(row.cells[5].innerText) || 0;
+                totalStrengtheningCost += parseFloat(row.cells[6].innerText) || 0;
+            });
+
+            document.getElementById('totalPaints').textContent = totalPaints.toFixed(2);
+            document.getElementById('totalPaintCost').textContent = totalPaintCost.toFixed(2);
+            document.getElementById('totalEyelets').textContent = totalEyelets.toFixed(2);
+            document.getElementById('totalEyeletCost').textContent = totalEyeletCost.toFixed(2);
+            document.getElementById('totalStrengthening').textContent = totalStrengthening.toFixed(2);
+            document.getElementById('totalStrengtheningCost').textContent = totalStrengtheningCost.toFixed(2);
+
+            // Итоги для менеджеров
+            let totalPrintArea = 0;
+            let totalSalary = 0;
+
+            const managerRows = document.querySelectorAll('#managersTable tbody tr:not([style*="display: none"])');
+            managerRows.forEach(row => {
+                totalPrintArea += parseFloat(row.cells[2].innerText) || 0;
+                totalSalary += parseFloat(row.cells[3].innerText) || 0;
+            });
+
+            document.getElementById('totalPrintArea').textContent = totalPrintArea.toFixed(2);
+            document.getElementById('totalSalary').textContent = totalSalary.toFixed(2);
         };
 
         // Вызываем функцию подсчета сразу при загрузке страницы
         showTable('materialsTable'); // Показать таблицу материалов по умолчанию
         calculateTotals();
 
-        // События для фильтров и обновление их
+        // События для фильтров и обновления их
         startDateInput.addEventListener('change', () => {
             filterTables();
             updateDateRanges();
+            calculateTotals(); // Пересчитываем итоги после фильтрации
         });
         endDateInput.addEventListener('change', () => {
             filterTables();
             updateDateRanges();
+            calculateTotals(); // Пересчитываем итоги после фильтрации
         });
         materialFilterInput.addEventListener('change', () => {
             filterTables();
             updateDateRanges();
+            calculateTotals(); // Пересчитываем итоги после фильтрации
         });
         managerFilterInput.addEventListener('change', () => {
             filterTables();
             updateDateRanges();
+            calculateTotals(); // Пересчитываем итоги после фильтрации
         });
     });
 </script>
 
 {% endblock %}
-
-
-
