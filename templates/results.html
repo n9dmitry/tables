@@ -9,7 +9,8 @@
     <!-- Поле поиска по номеру задания -->
     <div class="form-group mt-3">
         <label for="search_task">Поиск по номеру задания</label>
-        <input type="text" class="form-control" id="search_task" oninput="applyFilters()" placeholder="Введите номер задания...">
+        <input type="text" class="form-control" id="search_task" oninput="applyFilters()"
+               placeholder="Введите номер задания...">
     </div>
 
     <!-- Фильтры -->
@@ -42,6 +43,7 @@
         <thead class="thead-light">
         <tr>
             <th>№</th>
+            <th>Действие</th>
             <th>№ задачи</th>
             <th>Дата</th>
             <th>Материал</th>
@@ -69,8 +71,15 @@
         {% if results %}
         <tbody>
         {% for result in results %}
-        <tr class="result-row" data-task-number="{{ result.order.task_number }}" data-material="{{ result.order.material }}" data-printer="{{ result.order.performer }}" data-date="{{ result.order.date.strftime('%Y-%m-%d') }}">
+        <tr class="result-row" data-task-number="{{ result.order.task_number }}"
+            data-material="{{ result.order.material }}" data-printer="{{ result.order.performer }}"
+            data-date="{{ result.order.date.strftime('%Y-%m-%d') }}">
             <td>{{ result.order.id }}</td>
+            <td>
+                <form method="post" action="/order/delete/{{ result.order.id }}" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i></button>
+                </form>
+            </td>
             <td>{{ result.order.task_number }}</td>
             <td>{{ result.order.date.strftime("%d.%m.%Y") }}</td>
             <td>{{ result.order.material }}</td>
@@ -105,31 +114,31 @@
 </div>
 
 <script>
-function applyFilters() {
-    const searchValue = document.getElementById("search_task").value.toLowerCase();
-    const materialFilter = document.getElementById("filter_material").value;
-    const printerFilter = document.getElementById("filter_printer").value.toLowerCase();
-    const dateFilter = document.getElementById("filter_date").value;
+    function applyFilters() {
+        const searchValue = document.getElementById("search_task").value.toLowerCase();
+        const materialFilter = document.getElementById("filter_material").value;
+        const printerFilter = document.getElementById("filter_printer").value.toLowerCase();
+        const dateFilter = document.getElementById("filter_date").value;
 
-    const rows = document.querySelectorAll(".result-row");
-    rows.forEach(row => {
-        const taskNumber = row.dataset.taskNumber.toString();
-        const material = row.dataset.material;
-        const printer = row.dataset.printer.toLowerCase();
-        const date = row.dataset.date;
+        const rows = document.querySelectorAll(".result-row");
+        rows.forEach(row => {
+            const taskNumber = row.dataset.taskNumber.toString();
+            const material = row.dataset.material;
+            const printer = row.dataset.printer.toLowerCase();
+            const date = row.dataset.date;
 
-        const matchTaskNumber = taskNumber.includes(searchValue);
-        const matchMaterial = materialFilter ? material === materialFilter : true;
-        const matchPrinter = printer.includes(printerFilter);
-        const matchDate = dateFilter ? date === dateFilter : true;
+            const matchTaskNumber = taskNumber.includes(searchValue);
+            const matchMaterial = materialFilter ? material === materialFilter : true;
+            const matchPrinter = printer.includes(printerFilter);
+            const matchDate = dateFilter ? date === dateFilter : true;
 
-        if (matchTaskNumber && matchMaterial && matchPrinter && matchDate) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-    });
-}
+            if (matchTaskNumber && matchMaterial && matchPrinter && matchDate) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
 </script>
 
 {% endblock %}
