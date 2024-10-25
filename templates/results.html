@@ -42,8 +42,8 @@
     <table class="table table-bordered mt-4" id="results_table">
         <thead class="thead-light">
         <tr>
+            <th>Del</th>
             <th>№</th>
-            <th>Действие</th>
             <th>№ задачи</th>
             <th>Дата</th>
             <th>Материал</th>
@@ -74,12 +74,13 @@
         <tr class="result-row" data-task-number="{{ result.order.task_number }}"
             data-material="{{ result.order.material }}" data-printer="{{ result.order.performer }}"
             data-date="{{ result.order.date.strftime('%Y-%m-%d') }}">
-            <td>{{ result.order.id }}</td>
             <td>
                 <form method="post" action="/order/delete/{{ result.order.id }}" class="d-inline">
                     <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i></button>
                 </form>
             </td>
+            <td>{{ result.order.id }}</td>
+
             <td>{{ result.order.task_number }}</td>
             <td>{{ result.order.date.strftime("%d.%m.%Y") }}</td>
             <td>{{ result.order.material }}</td>

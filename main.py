@@ -465,6 +465,42 @@ async def update_order(
     })
 
 
+@app.post("/order/delete/{order_id}")
+async def delete_order(
+        order_id: int,
+        request: Request,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    check_role_access(current_user, {Role.superuser, Role.admin})
+
+    order = db.query(Order).filter(Order.id == order_id).first()
+
+    if not order:
+        message = "Заказ не найден."
+        message_type = "danger"
+    else:
+        results = db.query(Result).filter(Result.order_id == order.id).all()
+        for result in results:
+            db.delete(result)
+
+        db.delete(order)
+        db.commit()
+        message = "Заказ удалён успешно!"
+        message_type = "success"
+
+    orders = db.query(Order).order_by(Order.id.desc()).all()
+    return templates.TemplateResponse("manager.html", {
+        "request": request,
+        "orders": orders,
+        "message": message,
+        "message_type": message_type,
+        "user": current_user,
+        "role": current_user.role.value,
+    })
+
+
+
 @app.get("/settings", response_class=HTMLResponse)
 async def read_settings(request: Request, current_user: User = Depends(get_current_user),
                         db: Session = Depends(get_db)):
