@@ -38,118 +38,145 @@
         <button class="btn btn-primary" onclick="showTable('materialsTable')">Материалы</button>
         <button class="btn btn-primary" onclick="showTable('suppliesTable')">Расходники</button>
         <button class="btn btn-primary" onclick="showTable('managersTable')">Печатники</button>
-        <button class="btn btn-primary" onclick="showTable('managersTable')">Люверсники</button>
+        <button class="btn btn-primary" onclick="showTable('eyeletsTable')">Люверсники</button>
 
     </div>
 
     <!-- Таблицы -->
     <div id="materialsTable" class="table-container mt-3">
-        <h2>Материалы</h2>
+        <h2>Сводная - Материалы</h2>
         <table class="table table-bordered">
             <thead>
-                <tr>
-                    <th>Дата</th>
-                    <th>Материал</th>
-                    <th>Расход м2</th>
-                    <th>Стоимость</th>
-                </tr>
+            <tr>
+                <th>Дата</th>
+                <th>Материал</th>
+                <th>Расход м2</th>
+                <th>Стоимость</th>
+            </tr>
             </thead>
             <tbody>
-                {% for order in orders %}
-                    <tr>
-                        <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
-                        <td>{{ order.material }}</td>
-                        <td>{{ order.result.total_canvas_area }}</td>
-                        <td>{{ order.result.expenses_canvas }}</td>
-                    </tr>
-                {% endfor %}
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
+                <td>{{ order.material }}</td>
+                <td>{{ order.result.total_canvas_area }}</td>
+                <td>{{ order.result.expenses_canvas }}</td>
+            </tr>
+            {% endfor %}
             </tbody>
             <tfoot>
-                <tr>
-                    <td><strong>Итого:</strong> C <span id="dateRangeMaterial"></span></td>
-                    <td>-</td>
-                    <td id="totalMaterialArea">-</td>
-                    <td id="totalMaterialCost">-</td>
-                </tr>
+            <tr>
+                <td><strong>Итого:</strong> C <span id="dateRangeMaterial"></span></td>
+                <td>-</td>
+                <td id="totalMaterialArea">-</td>
+                <td id="totalMaterialCost">-</td>
+            </tr>
             </tfoot>
         </table>
     </div>
 
     <div id="suppliesTable" class="table-container mt-3" style="display: none;">
-        <h2>Расходники</h2>
+        <h2>Сводная - Расходники</h2>
         <table class="table table-bordered">
             <thead>
-                <tr>
-                    <th>Дата</th>
-                    <th>Краски - расход (л)</th>
-                    <th>Стоимость краски</th>
-                    <th>Люверсы - расход (шт)</th>
-                    <th>Стоимость люверсов</th>
-                    <th>Усиление - расход (?)</th>
-                    <th>Стоимость усилений</th>
-                </tr>
+            <tr>
+                <th>Дата</th>
+                <th>Краски - расход (л)</th>
+                <th>Стоимость краски</th>
+                <th>Люверсы - расход (шт)</th>
+                <th>Стоимость люверсов</th>
+                <th>Усиление - расход (?)</th>
+                <th>Стоимость усилений</th>
+            </tr>
             </thead>
             <tbody>
-                {% for order in orders %}
-                    <tr>
-                        <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
-                        <td>{{ order.result.total_paints }}</td>
-                        <td>{{ order.result.expenses_prints }}</td>
-                        <td>{{ order.result.total_eyelets }}</td>
-                        <td>{{ order.result.expenses_eyelets }}</td>
-                        <td>{{ order.result.total_strengthening }}</td>
-                        <td>{{ order.result.expenses_strengthening }}</td>
-                    </tr>
-                {% endfor %}
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
+                <td>{{ order.result.total_paints }}</td>
+                <td>{{ order.result.expenses_prints }}</td>
+                <td>{{ order.result.total_eyelets }}</td>
+                <td>{{ order.result.expenses_eyelets }}</td>
+                <td>{{ order.result.total_strengthening }}</td>
+                <td>{{ order.result.expenses_strengthening }}</td>
+            </tr>
+            {% endfor %}
             </tbody>
             <tfoot>
-                <tr>
-                    <td><strong>Итого:</strong> C <span id="dateRangeSupplies"></span></td>
-                    <td id="totalPaints">-</td>
-                    <td id="totalPaintCost">-</td>
-                    <td id="totalEyelets">-</td>
-                    <td id="totalEyeletCost">-</td>
-                    <td id="totalStrengthening">-</td>
-                    <td id="totalStrengtheningCost">-</td>
-                </tr>
+            <tr>
+                <td><strong>Итого:</strong> C <span id="dateRangeSupplies"></span></td>
+                <td id="totalPaints">-</td>
+                <td id="totalPaintCost">-</td>
+                <td id="totalEyelets">-</td>
+                <td id="totalEyeletCost">-</td>
+                <td id="totalStrengthening">-</td>
+                <td id="totalStrengtheningCost">-</td>
+            </tr>
             </tfoot>
         </table>
     </div>
+
 
     <div id="managersTable" class="table-container mt-3" style="display: none;">
         <h2>Сводная - Менеджеры</h2>
         <table class="table table-bordered">
             <thead>
-                <tr>
-                    <th>Дата</th>
-                    <th>Менеджер</th>
-                    <th>Печати м²</th>
-                    <th>ЗП</th>
-                </tr>
+            <tr>
+                <th>Дата</th>
+                <th>Менеджер</th>
+                <th>Печати м²</th>
+                <th>ЗП</th>
+            </tr>
             </thead>
             <tbody>
-                {% for order in orders %}
-                    <tr>
-                        <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
-                        <td>{{ order.performer }}</td>
-                        <td>{{ order.result.total_print_area }}</td>
-                        <td>
-                            {% if order.result.total_print_area is not none and actual_settings.printer_rate_m2 is not none %}
-                                {{ order.result.total_print_area * actual_settings.printer_rate_m2 }}
-                            {% else %}
-                                0
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
+                <td>{{ order.performer }}</td>
+                <td>{{ order.result.total_print_area }}</td>
+                <td>
+                    {% if order.result.total_print_area is not none and actual_settings.printer_rate_m2 is not none %}
+                    {{ order.result.total_print_area * actual_settings.printer_rate_m2 }}
+                    {% else %}
+                    0
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
             </tbody>
             <tfoot>
-                <tr>
-                    <td><strong>Итого:</strong> C <span id="dateRangeManagers"></span></td>
-                    <td></td>
-                    <td id="totalPrintArea">-</td>
-                    <td id="totalSalary">-</td>
-                </tr>
+            <tr>
+                <td><strong>Итого:</strong> C <span id="dateRangeManagers"></span></td>
+                <td></td>
+                <td id="totalPrintArea">-</td>
+                <td id="totalSalary">-</td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div id="eyeletsTable" class="table-container mt-3" style="display: none;">
+        <h2>Сводная - Люверсники</h2>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Дата</th>
+                <th>ЗП</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.date.strftime("%Y-%m-%d") }}</td>
+                <td>{{ order.result.salary_eyelet_worker }}</td>
+
+            </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr>
+                <td><strong>Итого:</strong> C <span id="dateRangeManagers"></span></td>
+                <td id="totalSalary">-</td>
+            </tr>
             </tfoot>
         </table>
     </div>
